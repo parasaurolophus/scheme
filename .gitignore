@@ -1,7 +1,4 @@
-*.ss~
-*.ss#*
-.#*.ss
-
-*.scm~
-*.scm#*
-.#*.scm
+*~
+\#*
+\**
+scratch.scm

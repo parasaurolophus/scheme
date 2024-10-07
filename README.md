@@ -37,9 +37,9 @@ Consider the following formula of &lambda;-calculus:
 
 $$
 \begin{align*}
-\text{let } n := \left(f \ 2 \right) \\
-\text{where } f := \lambda x . \left(+ \ x \ 1 \right) \\
-\therefore n = 3
+    \text{let } n &  := (f \ 2) \\
+  \text{where } f &  := \lambda x . (+ \ x \ 1) \\
+     \therefore n & = 3
 \end{align*}
 $$
 
@@ -94,9 +94,9 @@ favored when writing formuals in real time while lecturing:
 
 $$
 \begin{align*}
-\text{let } n = f \ 2 \\
-\text{where } f = \lambda x . + \ x \ 1 \\
-\therefore n = 3
+    \text{let } n & = f \ 2 \\
+  \text{where } f & = \lambda x . + \ x \ 1 \\
+    \therefore n & = 3
 \end{align*}
 $$
 
@@ -190,8 +190,8 @@ traditional definition of $n!$:
 $$
 n! =
 \begin{cases}
-                      1 & \text{if } n \leq 1 \\
-n \left( n - 1 \right)! & \text{otherwise}
+                        1 & \text{if } n \leq 1 \\
+  n (n - 1)! & \text{otherwise}
 \end{cases}
 $$
 
@@ -214,14 +214,6 @@ later versions of Scheme, modeled on the same form from other Lisp dialects.
 This is exactly how $n!$ should be implemented in any procedural programming
 language lacking tail-call optimization.
 
-While the [factorial2.scm](./factorial2.scm) version works, it is not
-considered good Scheme style, not least because the Scheme compiler will use
-[CPS](#continuation-passing-style) optimizations to transform it under the
-covers into something fairly closely resembling the version in
-[factorial3.scm](./factorial3.scm) in any case. So why defer such optimizations
-to the compiler when applying them yourself results in code that is easier to
-write, read and maintain?
-
 ```scheme
 ;; another way NOT to define n! in scheme (even though it is the only way to
 ;; do so in most programming languages)
@@ -231,6 +223,13 @@ write, read and maintain?
         ((<= x 1) a)
       (set! a (* a x)))))
 ```
+
+While the [factorial2.scm](./factorial2.scm) version works, it is not
+considered good Scheme style, not least because the Scheme compiler will
+transform it under the covers into something fairly closely resembling the
+version in [factorial3.scm](./factorial3.scm) in any case. So why defer such
+optimizations to the compiler when applying them yourself results in code that
+is easier to write, read and maintain?
 
 ### [factorial3.scm](./factorial3.scm)
 
@@ -275,46 +274,49 @@ of both the caller's state and the value returned from the self-call.
 The self-call to `f` in `factorial3` _is_ in tail position because `f` performs
 the necessary multiplication before calling itself, passing the new accumulated
 result along at each invocation and without accessing the return value from the
-self-call before returning, at each iteration. The self-call can effectively
-co-opt the caller's existing stack frame rather than needing a new frame of its
-own.
+self-call before returning. The self-call can effectively co-opt the caller's
+existing stack frame rather than needing a new frame of its own. [More on this
+[later](#stack-frames-tail-calls-and-continuations).]
 
 Note that this requires support from any intermediate forms in a calling
 sequence. In particular, almost every self-call needs to be wrapped in an `if`
 or similar conditional construct in order to prevent infinite loops. Most
 built-in special forms in Scheme are implemented such that if they appear in
-tail position, so will their subordinate clauses. Thus, the self-call to `f` is
+tail position so will their subordinate clauses. Thus, the self-call to `f` is
 in tail position not only relative to the definition of `f`, itself, but it is
 also in tail position relative to `factorial3` as a whole.
 
-```scheme
-(define (fn1)
-
-  ;; this whole let form is in tail position relative to fn1
-  (let fn2 ((n 3))
-
-    ;; this whole if form is in tail position relative to fn2, making
-    ;; it also in tail position relative to fn1
-    (if (<= n 0)
-
-        ;; while the preceding test expression is NOT in tail
-        ;; position, the "then" clause of an if is in tail position
-        ;; relative to the if
-        n
-
-        ;; ditto for the "else" clause
-        (fn2 (- n 1)))))
-```
-
 The same applies to most built-in control-flow forms such as `begin`, `cond`,
 `when` `unless` etc. For forms with multiple subforms that are executed in
-sequence, only the last subform is in tail position.
+sequence, only the last subform is in tail position:
 
+```scheme
+;; only the last form in the body of begin, let etc. is in tail position
+(let ((n (not-tail-position)))
+  (also-not-tail-position)
+  (tail-position))
+
+;; both branches of an if are in tail postion, but the test expression is not
+(if (not-tail-position)
+  (tail-position)
+  (also-tail-position))
+
+;; the last form in each clause of a cond is in tail position
+(cond
+
+  ((not-tail-position)
+   (also-not-tail-postion)
+   (tail-position))
+
+  ((again-not-tail-position)
+   (also-tail-position))
+   
+   (else
+    (once-again-not-tail-position)
+    (once-again-tail-position)))
 ```
-(begin
-  (displayln "not in tail position")
-  (displayln "tail position"))
-```
+
+...and so on.
 
 ---
 
@@ -1214,3 +1216,120 @@ I chose to leave out any such attempt. The consequence is that my
                       thunks)
             (run)))))
 ```
+
+## Stack Frames, Tail Calls and Continuations
+
+To really understand [CPS](#continuation-passing-style), you must understand
+the design of stored-program computing devices and the memory model used by
+CPU's and operating systems. Note that the following discussion deliberately
+ellides the many optimizations (and their concomittant complications) that have
+evolved over the decades since Von Neumann et al. first described their work on
+EDVAC in the 1940's (from which the misleading term "Von Neumann architecture"
+is derived). In particular, in order to keep the discussion as clear and
+focused as possible, the following deliberately makes no reference to things
+like separate control and data buses to support caching, per-process or
+per-thread stacks or heaps, and so on.
+
+The basic paradigm assumed by the Scheme runtime is based on a few basic
+principles common to all widely used digitial computing devices:
+
+- A CPU with some set of internal working registers and a PC (Program Counter)
+
+- RAM (Random Access Memory) used to store both programs as sequences of
+  _opcodes_ (operation codes) and data
+
+Further, the assumption is that the operating system or other system which
+bootstraps programs makes provision for dividing RAM into distinct regions for
+specific purposes, notably regions to hold
+
+- The sequence of opcodes comprising the program, itself
+
+- Static data specified at compile time
+
+- A heap from which blocks of memory can be dynamically allocated as needed
+during program execution
+
+- A _stack_ for keeping track of a program's state across procedure calls and
+  returns
+
+  - Historically, many models of CISC CPU have had a dedicated stack pointer
+    register, SP, for this that is used with dedicated "jump to sub-routine
+    with return address" opcodes; but the compiler for any given language needs
+    to do more than simply invoke such an opcode in order to handle procedure
+    parameters and return values correctly
+
+```mermaid
+graph LR
+
+  subgraph RAM
+    program
+    static
+    heap
+    stack
+  end
+
+  cpu -->|PC| program
+  cpu -.->|compile-time<br>constants| static
+  cpu -.->|allocate,<br>free| heap
+  cpu -->|SP| stack
+```
+
+At any given point in time during the execution of a program, the CPU's PC
+register contains the address of the currently executing opcode. While for most
+operations the PC increments automatically to the next opcode, then the next as
+each instruction is executed, any CPU's instruction set also includes opcodes
+which allow a program to load a different address into the PC, causing
+execution to continue executing from the opcode stored at the specified
+location in RAM. This is how non-sequential flow of control is implemented at
+the level of the hardware's instruction set.
+
+Given the preceding, the standard model for procedure calling relies on the
+concept of _stack frames_. To make a procedure call which can then return to
+the point from which it was called, wherever that might be in RAM at each such
+invocation, the calling program pushes values onto the stack containing the
+data to pass as arguments to the procedure along with the _return address_,
+i.e. the address to load into the PC register in order for the called procedure
+to jump back to the point from which it was called once the it has completed.
+The combination of parameters and return address is referred to as a
+procedure's stack frame.
+
+The called procedure obtains its parameters by consulting its stack frame and
+performs its operations by way of normal opcode processing. When it has
+completed, it again consults its stack frame for the address to load into the
+PC, effecting the return. Depending on details of a given instruction set's
+design and the memory model defined by a given operating system and compiler,
+either the called procedure or its caller will pop the now-completed
+procedure's frame off the stack when resuming the caller's execution at the
+location specified by the previously called procedure's return address.
+
+In this model, the call stack is a LIFO queue. If one procedure calls another
+before returning to its own caller, other things being equal, it will push a
+new frame for the sub-procedure, which becomes the top-most stack frame for the
+duration of that sub-procedure's execution. If the sub-sub-procedure makes a
+call, it will ordinarily push yet another frame onto the stack, and so on.
+Since RAM is a finite resource, this can eventually cause a "stack overflow"
+exception if such procedure calls are nested deeply enough that there is no
+more room for another frame on the stack.
+
+But here's the thing: note that from the point of view of any called procedure,
+its own frame is always the top-most one while it is executing. Its own
+execution is "suspended" for as long as any procedure it calls is executing,
+when _that_ procedure's frame is at the top. Note also that from a called
+procedure's point of view, the return address is, when all is said and done,
+just another (implicit, in most programming languages) parameter. Finally, note
+that a new stack frame only is needed for one procedure to call another if the
+caling procedure needs to resume execution after the one it calls returns. I.e.
+the procedure that calls a procedure does not need to know whether or not any
+additional frames were created on the stack during the time at which its own
+execution was suspended, it just needs the returned value and to know that its
+own frame is once again at the top of the stack, whether or not other frames
+exised while its execution was suspended.
+
+Putting all of the preceding together, Scheme's first-class continuations give
+the programmer the ability to seize control of the stack, treating return
+addresses (continuations) as just another parameter. Tail-call optimization
+requires the compiler to refrain from adding frames to the stack when they are
+not actually needed. Together, these make [CPS](#continuation-passing-style)
+the "universal flow of control" paradigm, allowing tail-calling to take the
+place of any special looping, exception handling or other pre-defined control
+structures.

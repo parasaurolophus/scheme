@@ -37,9 +37,9 @@ Consider the following formula of &lambda;-calculus:
 
 $$
 \begin{align*}
-    \text{let } n & := \left(f \ 2 \right) \\
-  \text{where } f & := \lambda x . \left(+ \ x \ 1 \right) \\
-    \therefore n & = 3
+\text{let } n := \left(f \ 2 \right) \\
+\text{where } f := \lambda x . \left(+ \ x \ 1 \right) \\
+\therefore n = 3
 \end{align*}
 $$
 
@@ -94,9 +94,9 @@ favored when writing formuals in real time while lecturing:
 
 $$
 \begin{align*}
-    \text{let } n & = f \ 2 \\
-  \text{where } f & = \lambda x . + \ x \ 1 \\
-    \therefore n & = 3
+\text{let } n = f \ 2 \\
+\text{where } f = \lambda x . + \ x \ 1 \\
+\therefore n = 3
 \end{align*}
 $$
 
@@ -239,8 +239,8 @@ mathematically equivalent variation of the traditional definition of $n!$:
 
 $$
 \begin{align*}
-                   n! & = f(n, 1) \\
-\text{where } f(x, a) & =
+n! = f(n, 1) \\
+\text{where } f(x, a) =
 \begin{cases}
          a & \text{if } x \leq 1 \\
 f(x-1, ax) & \text{otherwise}

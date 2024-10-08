@@ -36,11 +36,11 @@ deserve to consider yourself a truly extraordinary coder.
 Consider the following formula of &lambda;-calculus:
 
 $$
-\begin{align*}
+\begin{split}
     \text{let } n &  := (f \ 2) \\
   \text{where } f &  := \lambda x . (+ \ x \ 1) \\
      \therefore n & = 3
-\end{align*}
+\end{split}
 $$
 
 The preceding would be read in English as:
@@ -93,11 +93,11 @@ in Dodd Hall on the UCLA campus circa 1979, using the "informal" syntax he
 favored when writing formuals in real time while lecturing:
 
 $$
-\begin{align*}
+\begin{split}
     \text{let } n & = f \ 2 \\
   \text{where } f & = \lambda x . + \ x \ 1 \\
-    \therefore n & = 3
-\end{align*}
+     \therefore n & = 3
+\end{split}
 $$
 
 When McCarthy first started working on what would become Lisp, he envisoned two
@@ -237,14 +237,12 @@ The version in [factorial3.scm](./factorial3.scm) implements this
 mathematically equivalent variation of the traditional definition of $n!$:
 
 $$
-\begin{align*}
 n! = f(n, 1) \\
 \text{where } f(x, a) =
 \begin{cases}
          a & \text{if } x \leq 1 \\
 f(x-1, ax) & \text{otherwise}
 \end{cases}
-\end{align*}
 $$
 
 In particular, it introduces a helper function, `f`, that implements

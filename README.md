@@ -37,9 +37,9 @@ Consider the following formula of &lambda;-calculus:
 
 $$
 \begin{split}
-    \text{let } n &  := (f \ 2) \\
-  \text{where } f &  := \lambda x . (+ \ x \ 1) \\
-     \therefore n & = 3
+    \text{let } n & = f \ 2 \\
+  \text{where } f & = \lambda x . + x \ 1 \\
+     \therefore n &  = 3
 \end{split}
 $$
 
@@ -87,18 +87,7 @@ school of mathemticians who first described and used it), in part because it
 results in a more consistent syntax with other instances of function
 application, but mostly because it allows for much more compact mathematical
 formulas by eliminating the need for grouping symbols such as parentheses in
-most circumstances. In fact, here is how Church would have likely written the
-preceding formula on a chalkboard (yes, using chalk) in a classroom, somewhere
-in Dodd Hall on the UCLA campus circa 1979, using the "informal" syntax he
-favored when writing formuals in real time while lecturing:
-
-$$
-\begin{split}
-    \text{let } n & = f \ 2 \\
-  \text{where } f & = \lambda x . + \ x \ 1 \\
-     \therefore n & = 3
-\end{split}
-$$
+most circumstances.
 
 When McCarthy first started working on what would become Lisp, he envisoned two
 distinct forms of syntax. S-expressions were intended as an internal data
@@ -106,42 +95,45 @@ representation. To make them as easy to parse as possible they require almost
 everything to be surrounded by parentheses. M-expressions were intended to be
 used to write Lisp source code and they... were never really worked out to any
 useful degree. The original intent had been to implement a language whose
-source code would be much more "mainstream" by comparison to the only other
-widely-known languages under development at the time -- Algol, Fortran and
-Cobol -- while implementing the full flexibility and expressive power of the
-&lambda;-calculus under the covers. As the first Lisp implementation started to
-take shape, however, getting working interpreters and compilers going based on
-S-expressions proved easier than getting consensus on what kind of syntax
-M-expressions should have, so the first generation of Lisp programmers just
-embraced S-expressions as the "official" syntax for Lisp source code and the
-whole idea of M-expression based syntax just fizzled out.
+source code would be much more "mainstream" by comparison to Algol-like
+languages under development at the time while implementing the full flexibility
+and expressive power of the &lambda;-calculus under the covers. As the first
+Lisp implementation started to take shape, however, getting working
+interpreters and compilers going based on S-expressions proved easier than
+getting consensus on what kind of syntax M-expressions should have, so the
+first generation of Lisp programmers just embraced S-expressions as the
+"official" syntax for Lisp source code and the whole idea of M-expression based
+syntax just fizzled out.
 
-The lack of enthusiasm for M-expressions was partly due to the fact that, in
-reality, "so many parentheses" turns out only to be a deterrent to beginners.
-Anyone who spends even a short time seriously attempting to write Lisp quickly
-becomes quite used to them. Further, since sexprs are the core data structure
-type (originally, the _only_ type of structured data) supported by Lisp,
-representing Lisp programs as sexprs means that every Lisp program is also a
-chunk of data that can be easily parsed, modified and written using built-in
-`read`, `print` and list manipulation functions. I.e. writing Lisp code that
-analyses, modifies or generates Lisp code is straightforward. This is one of
-the characteristics that made Lisp the overwhelmingly preferred language for
-the first wave of AI research and development from the beginning of the 1960's
-through the end of the 1980's.
+Had M-expressions been fully realized and adopted, the Lisp family of languages
+would no doubt have ended up with a syntax looking much more familiar to
+developers used to popular languages in the Pascal, Modula, Ada, C, C++. Java,
+C#, JavaScript, Go tradition. The lack of enthusiasm for M-expressions was
+partly due to the fact that, in reality, "so many parentheses" turns out only
+to be a deterrent to beginners. Anyone who spends even a short time seriously
+attempting to write Lisp quickly becomes quite used to them. Further, since
+sexprs are represented using the core data structure type (originally, the
+_only_ type of structured data) supported by Lisp, representing Lisp programs
+as sexprs means that every Lisp program is also a chunk of data that can be
+easily parsed, modified and written using built-in `read`, `print` and list
+manipulation functions. I.e. writing Lisp code that analyses, modifies or
+generates Lisp code is straightforward. This is one of the characteristics that
+made Lisp the overwhelmingly preferred language for the first wave of AI
+research and development from the beginning of the 1960's through the end of
+the 1980's.
 
 That said, many attempts have been made over the subsequent decades to wrap
 Lisp's incredibly powerful semantics in syntax that is more palatable to
-developers coming to it from Algol-like languages (i.e. all "mainstream"
-languages in the C / C++ / Java / C# / JavaScript / Go tradition). Smalltalk
-and Haskell were early examples. Ruby is the most widely-adopted. Clojure is a
-weird Java/Lisp love child. All come with baggage of one kind or another such
-that if you want to really understand how the world of software engineers came
-to use the word "lambda" to mean "function" and all that the functional
-programming paradigm has to offer, just put your aversion to "all those silly
-parentheses" aside (presumably by learning why you should not try to write Lisp
-source code in any editor other than
-[Emacs](https://www.gnu.org/software/emacs/)) and learn Lisp, starting with
-Scheme.
+developers coming to it from Algol-like languages. Smalltalk and Haskell were
+early examples. Ruby is the most widely-adopted. Clojure is a weird Java/Lisp
+love child. All come with baggage of one kind or another such that if you want
+to really understand how the world of software engineers came to use the word
+"lambda" to mean "function" -- without having ever heard of Computability
+Theory -- and all that the functional programming paradigm has to offer, just
+put your aversion to "all those silly parentheses" aside (presumably by
+learning why you should not try to write Lisp source code in any editor other
+than [Emacs](https://www.gnu.org/software/emacs/)) and learn Lisp, starting
+with Scheme.
 
 #### Scheme is the RISC of Lisps
 

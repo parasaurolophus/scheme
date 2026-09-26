@@ -1,4 +1,4 @@
-Copyright &copy; 2024 Kirk Rader
+Copyright &copy; 2024-2026 Kirk Rader
 
 # Scheme
 
@@ -20,12 +20,11 @@ looked away.
 
 You have no idea what you have missed.
 
-Just as Turing's [_a-machines_](https://en.wikipedia.org/wiki/Turing_machine)
-provide the theoretical basis for all digital computing hardware, Church's
-_&lambda;-calculus_ is the fundamental framework for any possible programming
-language. The Lisp family of languages began in the 1960's in an attempt to
-implement the &lambda;-calculus directly as a programming language. Scheme was
-the ultimate result of that tradition.
+Just as Turing's [a-machines] provide the theoretical basis for all digital
+computing hardware, Church's [&lambda;-Calculus] is the conceptual framework for
+any possible programming language. The Lisp family of languages began in the
+1960's in an attempt to implement &lambda;-Calculus directly as a programming
+language. Scheme is the ultimate result of that tradition.
 
 If you understand what is unique about Scheme and can instinctively apply its
 principles in real-world applications even in less powerful languages, you
@@ -33,38 +32,54 @@ deserve to consider yourself a truly extraordinary coder.
 
 #### No, Really...
 
-Consider the following formula of &lambda;-calculus:
+Consider the following formulas of &lambda;-calculus (with the addition of
+[Church Numerals] and corresponding arithmetic operations):
 
 $$
 \begin{split}
-    \text{let } n & = f \ 2 \\
-  \text{where } f & = \lambda x . + x \ 1 \\
-     \therefore n &  = 3
+    \text{let } f & = \left( \lambda x . \left( x + 1 \right) \right) \\
+    \text{and } n & = \left( f \ 2 \right) \\
+     \therefore n & \equiv 3
 \end{split}
 $$
 
-The preceding would be read in English as:
+> _[Note that Church would have written the preceding on a chalkboard as:_
+>
+> $$
+> \begin{split}
+>    \text{let } f & = \lambda x . + x \ 1 \\
+>    \text{and } n & = f \ 2 \\
+>     \therefore n & \equiv 3
+> \end{split}
+> $$
+>
+> _He was a huge fan of prefix (a.k.a. Polish) notation and missed no
+> opportunity to extole its virtues, primariy due to the fact that it allows for
+> almost all parentheses to be eliminated from a formal language.]_
 
-> Let _n_ be _f_ of 2 where _f_ is a function that adds 1 to its argument.
-> Therefore _n_ is 3.
 
-In the terminology of formal linguistics, &lambda; is a variable-binding
-operator used to define mathematical computations.
+> The preceding would be read in English as:
+>
+> _Let _f_ be a function that adds 1 to its argument and _n_ be the result of
+> applying _f_ to 2. Therefore _n_ is 3._
+
+In the terminology of formal linguistics, &lambda; is a _variable-binding
+operator_ used to define mathematical computations.
 
 Here is the literal equivalent in just about any dialect of Lisp, including
 Scheme:
 
 ```scheme
+; prints 3 on the console when typed into a REPL:
 (let* ((f (lambda (x) (+ x 1)))
        (n (f 2)))
   n)
 ```
 
-Pasting the preceding [sexpr](https://en.wikipedia.org/wiki/S-expression) into
-a REPL (read-eval-print loop) for any Lisp environment will display 3 as the
-result. Many moden Lisp environments will even accept a unicode &lambda;
-character as a synonym for spelling out `lambda` in ASCII, making the
-relationship to &lambda;-calculus that much more clear:
+Pasting the preceding [sexpr] into a REPL (read-eval-print loop) for any Lisp
+environment will display 3 as the result. Many moden Lisp environments will even
+accept a unicode &lambda; character as a synonym for spelling out `lambda` in
+ASCII, making the relationship to &lambda;-Calculus that much more clear:
 
 ```scheme
 (let* ((f (λ (x) (+ x 1)))
@@ -72,55 +87,45 @@ relationship to &lambda;-calculus that much more clear:
   n)
 ```
 
-The differences between the &lambda;-calculus and Lisp versions are:
-
-1. Lisp imposes a strict ordering of expressions based on a computer program's
-   flow of control while human students of the philosophy of mathematics have
-   far more flexible CPU architectures allowing, in this case, the use of a
-   function and its definition to be evaluated in parallel
-
-2. So many parentheses!
-
-It is a great irony that Church was an advocate of prefix notation for
-mathematical operators like $+$ (sometimes called Polish notation after the
-school of mathemticians who first described and used it), in part because it
-results in a more consistent syntax with other instances of function
-application, but mostly because it allows for much more compact mathematical
-formulas by eliminating the need for grouping symbols such as parentheses in
-most circumstances.
+So many parentheses! It is a great irony that Church, as noted above, was an
+advocate of prefix notation for mathematical operators like $+$ (sometimes
+called Polish notation after the school of logicians who first described and
+used it), in part because it results in a more consistent syntax with other
+instances of function application, but mostly because it allows for much more
+compact mathematical formulas by eliminating the need for grouping symbols such
+as parentheses in most circumstances.
 
 When McCarthy first started working on what would become Lisp, he envisoned two
 distinct forms of syntax. S-expressions were intended as an internal data
 representation. To make them as easy to parse as possible they require almost
 everything to be surrounded by parentheses. M-expressions were intended to be
 used to write Lisp source code and they... were never really worked out to any
-useful degree. The original intent had been to implement a language whose
-source code would be much more "mainstream" by comparison to Algol-like
-languages under development at the time while implementing the full flexibility
-and expressive power of the &lambda;-calculus under the covers. As the first
-Lisp implementation started to take shape, however, getting working
-interpreters and compilers going based on S-expressions proved easier than
-getting consensus on what kind of syntax M-expressions should have, so the
-first generation of Lisp programmers just embraced S-expressions as the
-"official" syntax for Lisp source code and the whole idea of M-expression based
-syntax just fizzled out.
+useful degree. The original intent had been to implement a language whose source
+code would be much more "mainstream" by comparison to Algol-like languages under
+development at the time while implementing the full flexibility and expressive
+power of the &lambda;-calculus under the covers. As the first Lisp
+implementation started to take shape, however, getting working interpreters and
+compilers going based on S-expressions proved easier than getting consensus on
+what kind of syntax M-expressions should have, so the first generation of Lisp
+programmers just embraced S-expressions as the "official" syntax for Lisp source
+code and the whole idea of M-expression based syntax just fizzled out.
 
 Had M-expressions been fully realized and adopted, the Lisp family of languages
 would no doubt have ended up with a syntax looking much more familiar to
 developers used to popular languages in the Pascal, Modula, Ada, C, C++. Java,
-C#, JavaScript, Go tradition. The lack of enthusiasm for M-expressions was
-partly due to the fact that, in reality, "so many parentheses" turns out only
-to be a deterrent to beginners. Anyone who spends even a short time seriously
-attempting to write Lisp quickly becomes quite used to them. Further, since
-sexprs are represented using the core data structure type (originally, the
-_only_ type of structured data) supported by Lisp, representing Lisp programs
-as sexprs means that every Lisp program is also a chunk of data that can be
-easily parsed, modified and written using built-in `read`, `print` and list
-manipulation functions. I.e. writing Lisp code that analyses, modifies or
-generates Lisp code is straightforward. This is one of the characteristics that
-made Lisp the overwhelmingly preferred language for the first wave of AI
-research and development from the beginning of the 1960's through the end of
-the 1980's.
+C#, JavaScript, Go , _et_ endless _cetera_ tradition. The lack of enthusiasm for
+M-expressions was partly due to the fact that, in reality, "so many parentheses"
+turns out only to be a deterrent to beginners. Anyone who spends even a short
+time seriously attempting to write Lisp quickly becomes quite used to them.
+Further, since sexprs are represented using _cons cells_, the essential data
+structure type (originally, the _only_ type of structured data) supported by
+Lisp, representing Lisp programs as sexprs means that every Lisp program is also
+a chunk of data that can be easily parsed, modified and written using built-in
+`read`, `print` and list manipulation functions. I.e. writing Lisp code that
+analyses, modifies or generates Lisp code is straightforward. This is one of the
+characteristics that made Lisp the overwhelmingly preferred language for the
+first wave of AI research and development from the beginning of the 1960's
+through the end of the 1980's.
 
 That said, many attempts have been made over the subsequent decades to wrap
 Lisp's incredibly powerful semantics in syntax that is more palatable to
@@ -128,22 +133,53 @@ developers coming to it from Algol-like languages. Smalltalk and Haskell were
 early examples. Ruby is the most widely-adopted. Clojure is a weird Java/Lisp
 love child. All come with baggage of one kind or another such that if you want
 to really understand how the world of software engineers came to use the word
-"lambda" to mean "function" -- without having ever heard of Computability
-Theory -- and all that the functional programming paradigm has to offer, just
-put your aversion to "all those silly parentheses" aside (presumably by
-learning why you should not try to write Lisp source code in any editor other
-than [Emacs](https://www.gnu.org/software/emacs/)) and learn Lisp, starting
-with Scheme.
+"lambda" to mean "function" -- without having ever heard of [Computability
+Theory] -- and all that the functional programming paradigm has to offer, just
+put your aversion to "all those silly parentheses" aside (presumably by learning
+why you should not try to write Lisp source code in any editor other than
+[Emacs]) and learn Lisp, starting with Scheme.
+
+> Start with Scheme, if you are just starting out. Why not Common Lisp, you
+> might ask.
+>
+> Lisp dialects have a long and occasionally somewhat sordid history full of the
+> kind of drama to which any large family is prone. Suffice it to say here that
+> given the demands that Lisp's semantics place on computer hardware it was
+> recognized early on that general purpose machines of the kind available in the
+> 1960's were simply not up to the task of running Lisp interpreters or even
+> compiled Lisp code. The same team of researchers at MIT who were developing
+> Lisp also started developing specialized computer hardware optimized for
+> running it. By the 1970's, the MIT Lisp Machine team had formed a company,
+> _Synbolics_ which marketed such specialized devices. The dialect of Lisp that
+> ran on Symbolics hardware was called _Zetalisp_ and was a continuation of the
+> work the academic team in the MAC Lab (no relation to Applie's _Macintosh_) at
+> MIT had been doing on _Maclisp_. When the speed of general purpose hardware
+> finally caught up to and surpassed that of sepcialized machines from
+> _Symbolics_ and its competitors in the 1980's, a movement developed to create
+> a "universal" dialect of Lisp that was hardware neutral but at least somewhat
+> backwards compatible with all of the commerical software that had been written
+> in Maclisp derived dialects. The result of that effort was ANSI Common Lisp.
+>
+> Unfortunately, Common Lisp hearkens back to the very earliest versions of
+> Lisp. It retains a number of features that were designed as expediencies based
+> on the constraints of antique computer hardware and compiler techniques. It
+> then passed through a standardization process where each Lisp machine hardware
+> and software vendor fought to retain their own specific quirky variants. The
+> resulting language shows every sign of having been designed by a large and
+> cantankerous committee.
+>
+> Scheme's designers were motivated in the late 1980's to develop a language
+> that was far simpler, streamlined and in keeping with the expressive power of
+> &lambda;-Calculus. They succeeded.
 
 #### Scheme is the RISC of Lisps
 
 Scheme can famously be shown to be "Turing complete" -- i.e. capable of
-representing the behavior of any possible _a-machine_ -- using only a tiny
-handful of built-in data types and expression-defining special forms like
-`cons`, `first`, `rest`, `if` and, critically, `lambda` and `call/cc` in lieu
-of a dramatically larger number of keywords and special forms to represent
-things like loops and various kinds of special case processing in each
-iteration.
+representing the behavior of any possible a-machine -- using only a tiny handful
+of built-in data types and expression-defining special forms like `cons`,
+`first`, `rest`, `if` and, critically, `lambda` and `call/cc` in lieu of a
+dramatically larger number of keywords and special forms to represent things
+like loops and various kinds of special case processing in each iteration.
 
 Replacing special-purpose flow-of-control constructs by first-class
 continuations and tail-recursion provides benefits similar to those of a RISC
@@ -443,9 +479,9 @@ programming language must include some number of special forms for declaring
 non-sequential flow of control.
 
 Such special forms not only include simple conditionals like `if` but in most
-languages also include looping constructs like `for`, `do`, `while` etc. as
-well as statements like `return`, `break`, `continue` and so on to handle
-special-but-not-uncommon corner cases.
+languages also include looping constructs like `for`, `do`, `while` etc. as well
+as keywords like `return`, `break`, `continue`, `throw`, `catch` and so on to
+handle special-but-not-uncommon corner cases.
 
 ---
 
@@ -645,8 +681,8 @@ involved. Consider this function, which builds on
            (return counter)))))))
 ```
 
-Here is what happens when the initial continuation returned by a function
-created by `return-resumable` is invoked multiple times:
+Here is what happens when the continuation returned by a function created by
+`return-resumable` is invoked multiple times:
 
 ```
 > (define resumable (return-resumable))
@@ -663,28 +699,38 @@ resumed with baz, counter is now 3
 3
 ```
 
-- Bind the global variable `resumable` to the result of calling
+The preceding REPL invocations:
+
+1. Bind the global variable `resumable` to the result of calling
   `return-resumable`
 
-  - This sets `resumable` to a closure where the closed-over environment has
-    `counter` bound to 0 but the closure's function has not yet been invoked
+   - This sets `resumable` to a closure where the closed-over environment has
+     `counter` bound to 0 but the closure's function has not yet been invoked
 
-- Bind the global variable `c` to the result of calling `resumable`
+2. Bind the global variable `c` to the result of calling `resumable`
 
-  - Displays the side-effect of the initial invocation of the closure
+   - Displays the side-effect of the initial invocation of the closure
 
-  - Sets the initial value of `c` to the closure's `resume` continuation
+   - Sets the initial value of `c` to the closure's `resume` continuation
 
-- Save the continuation bound to `c` in the global variable `k` since `c` will
+3. Save the continuation bound to `c` in the global variable `k` since `c` will
   get overwritten each time `k` is invoked
 
-- Invoke the continuation in `k` multiple times
+4. Invoke the continuation in `k` multiple times
 
-  - The same side-effect message is displayed each time, reflecting the value
-    bound to `resumed` and the current value of `c` for that "iteration"
+   - The same side-effect message is displayed each time, reflecting the value
+     bound to `resumed` and the current value of `counter` for that "iteration"
 
-- Show that `c` is also updated each time to refect each iteration's "final"
-  result
+5. Show that `c` is also updated each time to refect each iteration's "final"
+   result
+
+Key features of Scheme continuations created using `call/cc` include:
+
+- Continuations can be used to interrupt a sequence of operations at any point.
+- Continuations can be used to resume a sequence of operations from the point at
+  which it was previously interrupted.
+- Continuations provide a bidirectional communication pathway between otherwise
+  disjoint sequences of operations.
 
 ### [dynamic-wind.scm](./dynamic-wind.scm)
 
@@ -814,19 +860,23 @@ exiting protected context
 ```
 
 As can be seen from the output, each output from invoking the `resume`
-continuation is bracked by output from the before and after thunks passed to
-`dynamic-wind`. This is the last of the building blocks necessary to understand
-CPS.
+continuation is bracketed by output from the before and after thunks passed to
+`dynamic-wind`. For example, if the body of some function assumes that a given
+file is open, putting code to open that file in the "before" thunk using
+`dynamic-wind` and code to close that file in the "after" thunk allows that
+function to be exited and re-entered safely using continuations.
+
+This is the last of the building blocks necessary to understand CPS.
 
 ## Continuation Passing Style
 
 CPS has become a staple of compiler design for many programming languages. As
 already noted, that term was coined by the original authors of Scheme. The
-combination of tail-call optimization and first-class continuations makes
-Scheme an ideal programming language not only to experiment with new
-programming languages and compilation strategies, but for implementing complex
-application code for any purpose, built from a small number of provably correct
-semantic building blocks.
+combination of tail-call optimization and first-class continuations makes Scheme
+an ideal programming language not only to experiment with new programming
+languages and compilation strategies, but for implementing complex application
+code for any purpose, built from a small number of provably correct semantic
+building blocks.
 
 ### [engines.scm](./engines.scm)
 
@@ -897,7 +947,7 @@ systems.
 - The `expire` handler is passed a new engine that is the continuation of the
   one that expired
 
-- Thunks passed to `make-engine`:
+- A thunk passed to `make-engine`:
 
   - Must call `decrement-timer!` from time to time in order consume fuel
 
@@ -910,7 +960,7 @@ systems.
     enhancement to the original Dybvig & Hieb version)
 
 - Thunks which fail to call `decrement-timer!` or `engine-block` will block
-  other engines from running until they return
+  other engines from running
 
 Given the seeming complexity of the interdependence of the four engine-related
 procedures, it is perhaps surprising how relatively little code it takes to
@@ -993,17 +1043,17 @@ implement them using finrst-class continuations:
 ---
 
 Engines represent a 100% cooperative paradigm for multi-tasking. There is no
-overarching engine scheduler and no mechanism for forcing one engine to yield
-to another. This may seem highly restrictive to developers familiar with
-preemptive multi-tasking operating systems and multi-core CPU's running
-multiple thread in parallel. But note that there is nothing unusual about
-cooperative multi-tasking. The first few decades of the digital revolution took
-place using hardware and operating systems that almost 100% single tasking. The
-first version of the Macintosh operating system, circa 1984, was considered
-quite advanced for a desktop OS in that it ran a multi-tasking operating system
-driven by an "event loop" which, at the end of the day, worked much like the
-engines implemented by the preceding example. (Pre-unix generations of Macs
-were notoriously prone to having to be forcibly rebooted due to one misbhaving
+overarching engine scheduler and no mechanism for forcing one engine to yield to
+another. This may seem highly restrictive to developers familiar with preemptive
+multi-tasking operating systems and multi-core CPU's running multiple threads in
+parallel. But note that there is nothing unusual about cooperative
+multi-tasking. The first few decades of the digital revolution took place using
+hardware and operating systems that were almost 100% single tasking. The first
+version of the Macintosh operating system, circa 1984, was considered quite
+advanced for a desktop OS in that it ran a multi-tasking operating system driven
+by an "event loop" which, at the end of the day, worked much like the engines
+implemented by the preceding example. (Pre-Unix generations of Macs were
+notoriously prone to having to be forcibly rebooted due to one misbhaving
 program failing to yield to any others.)
 
 For a more recent example, the Go programming language is considered quite _au
@@ -1017,13 +1067,13 @@ tasks yielded to one another by sharing some kind of synchronization or
 communication object at which point they would semantically identical to
 _goroutines_.
 
-[Note: I might have summarized this section as "engines are like _goroutines_",
-since the latter are more famous and popular these days except for the simple
-fact that the preceding implementation of engines predated the invention of
-_groutines_ by decades. In fact, I suspect the developers who first designed Go
-were just as well aware of Dybvig's and Hieb's work as they obviously were of
-Kernighan's and Ritchie's and many other programming language pioneers of the
-70's and 80's, given how much of a throw-back it is to such OG paradigms.]
+> Note: I might have summarized this section as "engines are like _goroutines_",
+> since the latter are more famous and popular these days except for the simple
+> fact that the preceding implementation of engines predated the invention of
+> _groutines_ by decades. In fact, I suspect the developers who first designed
+> Go were just as well aware of Dybvig's and Hieb's work as they obviously were
+> of Kernighan's and Ritchie's and many other programming language pioneers of
+> the 70's and 80's, given how much of a throw-back it is to such OG paradigms.
 
 ---
 
@@ -1052,13 +1102,13 @@ will return `#t`:
 ```
 
 given the definition of `concurrent-or` in
-[engines-test.scm](./engines-test.scm). This works because `concurrent-or`
-wraps each parameters as the body of a thunk and passes them to an invocation
-of `first-true`. The latter invokes each thunk as an engine whose expire
-routine invokes the continuation of the next in a round-robin fashion. So long
-as all the thunks call `decrement-timer!` inside any inner loops,
-`concurrent-or` will eventually return if any of the engines return a value
-other than `#f` or all of them complete, whichever happens first.
+[engines-test.scm](./engines-test.scm). This works because `concurrent-or` wraps
+each parameter as the body of a thunk and passes them to an invocation of
+`first-true`. The latter invokes each thunk as an engine whose expire routine
+invokes the continuation of the next in a round-robin fashion. So long as all
+the thunks call `decrement-timer!` inside any inner loops, `concurrent-or` will
+eventually return if any of the engines return a value other than `#f` or all of
+them complete, whichever happens first.
 
 <details>
 
@@ -1073,9 +1123,12 @@ well-behaved ones that explicitly call `decrement-timer!`. This was safe for
 them to do since they were the implementers of the original versions of Scheme
 and could tweak its runtime at will. More modern versions of Scheme have very
 inconsistent features for this kind of "meta programming." Rather than create
-examples that were tightly coupled to some particular Scheme variant or other,
-I chose to leave out any such attempt. The consequence is that my
-`concurrent-or` is less robust than D&H's original `parallel-or`.
+examples that were tightly coupled to some particular Scheme variant or other, I
+chose to leave out any such attempt. The consequence is that my `concurrent-or`
+is less robust than D&H's original `parallel-or`. I.e. mine is only an
+improvement over non-parallel `or` when passed well-behaved thunks. Again, this
+is true for any system based on co-operative multi-tasking. That is, in fact,
+the very definition of "co-operative."
 
 ---
 
@@ -1265,13 +1318,14 @@ graph LR
 ```
 
 At any given point in time during the execution of a program, the CPU's PC
-register contains the address of the currently executing opcode. While for most
+register contains the address of the currently executing opcode. For most
 operations the PC increments automatically to the next opcode, then the next as
-each instruction is executed, any CPU's instruction set also includes opcodes
-which allow a program to load a different address into the PC, causing
-execution to continue executing from the opcode stored at the specified
-location in RAM. This is how non-sequential flow of control is implemented at
-the level of the hardware's instruction set.
+each instruction is executed. To allow for non-sequential flow of control, any
+CPU's instruction set includes opcodes which allow a program to load a different
+address into the PC, causing execution to continue executing from the opcode
+stored at the specified location in RAM rathern simply the next one. This is how
+non-sequential flow of control is implemented at the level of the hardware's
+instruction set.
 
 Given the preceding, the standard model for procedure calling relies on the
 concept of _stack frames_. To make a procedure call which can then return to
@@ -1313,13 +1367,19 @@ the procedure that calls a procedure does not need to know whether or not any
 additional frames were created on the stack during the time at which its own
 execution was suspended, it just needs the returned value and to know that its
 own frame is once again at the top of the stack, whether or not other frames
-exised while its execution was suspended.
+existed while its execution was suspended.
 
 Putting all of the preceding together, Scheme's first-class continuations give
 the programmer the ability to seize control of the stack, treating return
 addresses (continuations) as just another parameter. Tail-call optimization
 requires the compiler to refrain from adding frames to the stack when they are
-not actually needed. Together, these make [CPS](#continuation-passing-style)
-the "universal flow of control" paradigm, allowing tail-calling to take the
-place of any special looping, exception handling or other pre-defined control
-structures.
+not actually needed. Together, these make [CPS](#continuation-passing-style) the
+"universal flow of control" paradigm, allowing tail-calling to take the place of
+any special looping, exception handling or other pre-defined control structures.
+
+[a-machines]: https://en.wikipedia.org/wiki/Turing_machine
+[Church Numerals]: https://en.wikipedia.org/wiki/Church_encoding
+[Computability Theory]: https://en.wikipedia.org/wiki/Computability_theory
+[Emacs]: https://www.gnu.org/software/emacs/
+[&lambda;-Calculus]: https://en.wikipedia.org/wiki/Lambda_calculus
+[sexpr]: https://en.wikipedia.org/wiki/S-expression

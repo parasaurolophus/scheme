@@ -139,8 +139,8 @@ put your aversion to "all those silly parentheses" aside (presumably by learning
 why you should not try to write Lisp source code in any editor other than
 [Emacs]) and learn Lisp, starting with Scheme.
 
-> Start with Scheme, if you are just starting out. Why not Common Lisp, you
-> might ask.
+> Start with Scheme, if you are just starting out. You might ask, "Why not
+> Common Lisp?"
 >
 > Lisp dialects have a long and occasionally somewhat sordid history full of the
 > kind of drama to which any large family is prone. Suffice it to say here that
@@ -168,8 +168,8 @@ why you should not try to write Lisp source code in any editor other than
 > resulting language shows every sign of having been designed by a large and
 > cantankerous committee.
 >
-> Scheme's designers were motivated in the late 1980's to develop a language
-> that was far simpler, streamlined and in keeping with the expressive power of
+> Scheme's designers were motivated in the 1980's to develop a language that was
+> far more streamlined and in keeping with the minimalist expressive power of
 > &lambda;-Calculus. They succeeded.
 
 #### Scheme is the RISC of Lisps
@@ -185,21 +185,21 @@ Replacing special-purpose flow-of-control constructs by first-class
 continuations and tail-recursion provides benefits similar to those of a RISC
 CPU architecture compared to CISC. You may be able to express a given algorithm
 in the assembly language of a CISC machine using fewer individual instructions
-than the equivalent logic for a RISC machine. But each RISC instruction
-executes faster and their simpler, more "decomposed" semantics provide more
-opportunities for optimization compared to a "one size fits all" set of
-higher-level semantics. It is also easier to prove the correctness or predict
-the performance of programs that are composed of smaller, more consistent
-semantic building blocks.
+than the equivalent logic for a RISC machine. But each RISC instruction executes
+faster and their simpler, more "decomposed" semantics provide more opportunities
+for optimization compared to a "one size fits all" set of higher-level
+semantics. It is also easier to prove the correctness or predict the performance
+of programs that are composed of smaller, more consistent semantic building
+blocks.
 
 Or, at any rate, it _can_ and _should_ be so. Over the years, most Scheme
 implementers have succumbed to pressure from programmers familar with
 "mainstream" languages to support more and more non-Scheme-like idioms -- no
-doubt in an ultimately self-defeating bid to make Scheme adoption more
-enticing. If you are intrigued by Scheme but find yourself irrestibly drawn to
-forms like `do`, `for` etc., then perhaps you should consider whether or not
-Scheme actually fits your preferred coding style or use case. If you remain
-convinced that Scheme is for you, than "just say no" to `do`, `for` etc!
+doubt in an ultimately self-defeating bid to make Scheme adoption more enticing.
+If you are intrigued by Scheme but find yourself irrestibly drawn to forms like
+`do`, `for` etc., then perhaps you should consider whether or not Scheme
+actually fits your preferred coding style or use case. If you remain convinced
+that Scheme is for you, than "just say no" to `do`, `for` etc!
 
 ## Tail Call Optimization
 
@@ -252,17 +252,17 @@ language lacking tail-call optimization.
       (set! a (* a x)))))
 ```
 
-While the [factorial2.scm](./factorial2.scm) version works, it is not
-considered good Scheme style, not least because the Scheme compiler will
-transform it under the covers into something fairly closely resembling the
-version in [factorial3.scm](./factorial3.scm) in any case. So why defer such
-optimizations to the compiler when applying them yourself results in code that
-is easier to write, read and maintain?
+While the [factorial2.scm](./factorial2.scm) version works, it is not considered
+good Scheme style, not least because the Scheme compiler will transform it under
+the covers into something fairly closely resembling the version in
+[factorial3.scm](./factorial3.scm) in any case. So why defer such optimizations
+to the compiler when applying them yourself results in code that is easier to
+write, read and maintain?
 
 ### [factorial3.scm](./factorial3.scm)
 
-The version in [factorial3.scm](./factorial3.scm) implements this
-mathematically equivalent variation of the traditional definition of $n!$:
+The version in [factorial3.scm](./factorial3.scm) implements this mathematically
+equivalent variation of the traditional definition of $n!$:
 
 $$
 n! = f(n, 1) \\
@@ -273,9 +273,9 @@ f(x-1, ax) & \text{otherwise}
 \end{cases}
 $$
 
-In particular, it introduces a helper function, `f`, that implements
-effectively the same self-recursive logic as in
-[factorial1.scm](./factorial1.scm) but places the self-call in _tail position_.
+In particular, it introduces a helper function, `f`, that implements effectively
+the same self-recursive logic as in [factorial1.scm](./factorial1.scm) but
+places the self-call in _tail position_.
 
 <details>
 
@@ -291,11 +291,11 @@ becomes the value of the caller without further access or manipulation by the
 caller.
 
 In the case of [factorial1.scm](./factorial1.scm) vs
-[factorial3.scm](./factorial3.scm), the self-call in the former is _not_ in
-tail position because first `factorial1` calls itself, then it multiplies the
-returned value by its own parameter before returning. This requires the use of
-a distinct _stack frame_ at each level in the calling hierarchy to keep track
-of both the caller's state and the value returned from the self-call.
+[factorial3.scm](./factorial3.scm), the self-call in the former is _not_ in tail
+position because first `factorial1` calls itself, then it multiplies the
+returned value by its own parameter before returning. This requires the use of a
+distinct _stack frame_ at each level in the calling hierarchy to keep track of
+both the caller's state and the value returned from the self-call.
 
 The self-call to `f` in `factorial3` _is_ in tail position because `f` performs
 the necessary multiplication before calling itself, passing the new accumulated
@@ -488,10 +488,10 @@ handle special-but-not-uncommon corner cases.
 </details>
 
 Scheme takes an approach different from nearly any other language by allowing
-application-level code to explicitly "capture" a procedure's continuation at
-any point and use it to construct application-specific flows-of-control. This
-turns out to be so powerful that the earliest versions of Scheme provided only
-a vary basic set of conditional forms and relied on application code using
+application-level code to explicitly "capture" a procedure's continuation at any
+point and use it to construct application-specific flows-of-control. This turns
+out to be so powerful that the earliest versions of Scheme provided only a vary
+basic set of conditional forms and relied on application code using
 tail-recursion and continuations for any non-sequential flow fancier than `if`,
 as stated in the quote from Scheme's original authors [near the top of this
 page](#background).
@@ -621,8 +621,8 @@ foo
 - The initial invocation of `return-resume` displays 1 as a side-effect, as in
   the preceding `return-early` example
 
-- It then invokes `call/cc` internally to bind `resume` to another
-  continuation, this time as the expression being bound in a `let`
+- It then invokes `call/cc` internally to bind `resume` to another continuation,
+  this time as the expression being bound to the variable `resumed` in a `let`
 
   - The evaluation of that expression passes the `resume` continuation to the
     `return` continuation

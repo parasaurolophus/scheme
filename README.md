@@ -176,10 +176,11 @@ why you should not try to write Lisp source code in any editor other than
 
 Scheme can famously be shown to be "Turing complete" -- i.e. capable of
 representing the behavior of any possible a-machine -- using only a tiny handful
-of built-in data types and expression-defining special forms like `cons`,
-`first`, `rest`, `if` and, critically, `lambda` and `call/cc` in lieu of a
-dramatically larger number of keywords and special forms to represent things
-like loops and various kinds of special case processing in each iteration.
+of built-in data types and expression-defining special forms like `cons`, `car`,
+`cdr`, `if` and, critically, `lambda` and `call-with-current-continuation`
+(usually abbrivated `call/cc`) in lieu of a dramatically larger number of
+keywords and special forms to represent things like loops and various other
+kinds of special case flow-of-control.
 
 Replacing special-purpose flow-of-control constructs by first-class
 continuations and tail-recursion provides benefits similar to those of a RISC
@@ -192,14 +193,14 @@ semantics. It is also easier to prove the correctness or predict the performance
 of programs that are composed of smaller, more consistent semantic building
 blocks.
 
-Or, at any rate, it _can_ and _should_ be so. Over the years, most Scheme
-implementers have succumbed to pressure from programmers familar with
-"mainstream" languages to support more and more non-Scheme-like idioms -- no
-doubt in an ultimately self-defeating bid to make Scheme adoption more enticing.
-If you are intrigued by Scheme but find yourself irrestibly drawn to forms like
-`do`, `for` etc., then perhaps you should consider whether or not Scheme
-actually fits your preferred coding style or use case. If you remain convinced
-that Scheme is for you, than "just say no" to `do`, `for` etc!
+Or, at any rate, it _can_ (and, in my not so humble opinion, _should_) be so.
+Over the years, most Scheme implementers have succumbed to pressure from
+programmers familar with "mainstream" languages to support more and more
+non-Scheme-like idioms -- no doubt in an ultimately self-defeating bid to make
+Scheme adoption more enticing. If you are intrigued by Scheme but find yourself
+irrestibly drawn to forms like `do`, `for` etc., then perhaps you should
+consider whether or not Scheme actually fits your preferred coding style or use
+case.
 
 ## Tail Call Optimization
 

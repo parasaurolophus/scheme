@@ -646,7 +646,7 @@ foo
 
 Understanding the last bullet point is essential.
 
-### [return-resumable.scm](./return-resumable.scm)
+### [make-resumable.scm](./make-resumable.scm)
 
 Any non-trivial use of continuation ends up looking like some kind of
 iteration, even when no explicit looping construct or self-recursion is
@@ -654,46 +654,78 @@ involved. Consider this function, which builds on
 [return-resume](./return-resume.scm):
 
 ```scheme
-;; return-resumable demonstrates using a continuation to resume a
-;; previously exited flow-of-control multiple times
-(define (return-resumable)
+;; make-resumable demonstrates using a continuation to resume a previously
+;; exited flow-of-control multiple times
+
+;; provide call/cc for strict r5rs or earlier implementation which lack it
+(define-syntax call/cc
+  (syntax-rules ()
+    ((_ proc)
+     (call-with-current-continuation proc))))
+
+;; return a function which, when invoked, returns a continuation
+;;
+;; the resumable function's closure includes a counter which is initialized to 0
+;; when it first invoked
+;;
+;; each time the resumable function's continuation is invoked, it increments the
+;; counter and returns the updated value
+;;
+;; as a side-effect, the state of the counter and the value passed back into the
+;; resumable function as a parameter to the continuation are logged to the
+;; console
+(define (make-resumable)
   (let ((counter 0))
     (lambda ()
       (call/cc
        (lambda (return)
 
-         ;; return is bound call/cc's continuation, which is in tail
-         ;; position relative to return-resume
+         (display "initial value of counter is ")
+         (display counter)
+         (newline)
 
-         (printf "initial value of counter: ~a~%" counter)
-
-         ;; invoking return causes return-early's continuation to
-         ;; immediately receive the resume continuation as its value
+         ;; invoking `return` here causes the caller's continuation
+         ;; to immediately receive the `resume` continuation as its value
          (let ((resumed (call/cc (lambda (resume) (return resume)))))
 
-           ;; execution only reaches here if the resume continuation is
-           ;; invoked in which case resumed is bound to whatever was
-           ;; passed to it
+           ;; execution reaches here only if the `resume` continuation is
+           ;; invoked in which case `resumed` is bound to whatever was
+           ;; passed to the continuation as a parameter
+
+           ;; if the `resumed` continuation is invoked more than once,
+           ;; execution will start at the same place in the body of this
+           ;; function each time, thus making multiple invocations of a
+           ;; continuation semantically equivalent to iterations in a loop
 
            (set! counter (+ counter 1))
-           (printf "resumed with ~a, counter is now ~a~%" resumed counter)
+           (display "resumed with ")
+           (display resumed)
+           (display ", counter is now ")
+           (display counter)
+           (newline)
 
            ;; return counter as the "final" value of return-resume
-           (return counter)))))))
+           counter))))))
 ```
 
 Here is what happens when the continuation returned by a function created by
-`return-resumable` is invoked multiple times:
+`make-resumable` is invoked multiple times using a REPL, step by step:
 
-```
-> (define resumable (return-resumable))
-> (define c (resumable))
-initial value of counter: 0
+```scheme
+> (define r (make-resumable))
+> (define c (r))
+initial value of counter is 0
+> c
+#<procedure>
 > (define k c)
 > (k 'foo)
 resumed with foo, counter is now 1
+> c
+1
 > (k 'bar)
 resumed with bar, counter is now 2
+> c
+2
 > (k 'baz)
 resumed with baz, counter is now 3
 > c
@@ -702,36 +734,123 @@ resumed with baz, counter is now 3
 
 The preceding REPL invocations:
 
-1. Bind the global variable `resumable` to the result of calling
-  `return-resumable`
+1. Bind the global variable `r` to the result of calling `make-resumable`.
 
-   - This sets `resumable` to a closure where the closed-over environment has
-     `counter` bound to 0 but the closure's function has not yet been invoked
+   - This sets `r` to a closure where the closed-over environment has `counter`
+     bound to 0 but the closure's function has not yet been invoked.
 
-2. Bind the global variable `c` to the result of calling `resumable`
+2. Bind the global variable `c` to the result of calling `r`.
 
-   - Displays the side-effect of the initial invocation of the closure
+   - Displays the side-effect of the initial invocation of the function body.
 
-   - Sets the initial value of `c` to the closure's `resume` continuation
+   - Sets the initial value of `c` to the function's `resume` continuation.
 
 3. Save the continuation bound to `c` in the global variable `k` since `c` will
-  get overwritten each time `k` is invoked
+   get overwritten each time `k` is invoked.
 
-4. Invoke the continuation in `k` multiple times
+   - Note this well! Since the assignment to `c` in `(define c (r))` is the
+     continuation of the function invocation in `(r)`, `c` will be re-assigned
+     every time `r`'s continuation is invoked; hence the need for the separate
+     variable `k` to store that continuation.
+
+   - This implies that there are dependencies to the order in which variables
+     are defined and updated when continuations are involved, as discussed
+     below.
+
+4. Invoke the continuation in `k` multiple times.
 
    - The same side-effect message is displayed each time, reflecting the value
-     bound to `resumed` and the current value of `counter` for that "iteration"
+     bound to `resumed` and the current value of `counter` for that iteration as
+     the body of the same inner `let` is invoked each time.
 
 5. Show that `c` is also updated each time to refect each iteration's "final"
-   result
+   result.
 
-Key features of Scheme continuations created using `call/cc` include:
+Key features of Scheme continuations demonstrated by the preceding include:
 
 - Continuations can be used to interrupt a sequence of operations at any point.
 - Continuations can be used to resume a sequence of operations from the point at
   which it was previously interrupted.
 - Continuations provide a bidirectional communication pathway between otherwise
   disjoint sequences of operations.
+- Invoking the same continuation multiple times is semantically equivalent to
+  looping by way of self-recursion.
+
+As every fan of graphic novels is well aware: with great power comes great
+responsibility (along with a great capacity for making things go horribly wrong
+with very little effort). Creating and using continuations introduces subtle
+dependencies between otherwise disjoint blocks of code. One way in which this
+manifests is order and lexical scope constraints between lines of code that
+refer to a given continuation. Given the order of operations described in detail
+in the preceding sections, one might be tempted to wrap the separate global
+definitions in a `let*` like:
+
+```scheme
+;;; wrong! don't do this!
+(let* ((r (make-resumable))
+       (c (r))
+       (k c))
+    (k 'foo)
+    (k 'bar)
+    (k 'baz)
+    c)
+```
+
+The trouble is that by putting the declaration and initialization of `r`, `c`
+and `k` in a single lexical scope, the setting of `c` to value returned by `(r)`
+becomes part of `r`'s own continuation. Ditto for `k` and `c`. Everything will
+seem to be fine up until the second invocation of `k` in the body of the `let*`,
+at which point overwriting `c` will cascade into having overwritten 'k' such
+that `k` will hold the number 1 rather than the intended continuation initially
+bound to `c`. Something like the following is needed, instead:
+
+```scheme
+(let ((c #f)
+      (k #f))
+
+    ; set c to the continuation of a resumable computation by invoking the
+    ; function returned from a call to make-resumable
+    (set! c ((make-resumable)))
+
+    (cond
+
+        ((procedure? c)
+        ; initial invocation of the resumable function returned a
+        ; continuation; set k and invoke it for the first time
+        (set! k c)
+        (k 'foo))
+
+        ((= c 1)
+        ; k was invoked once, invoke it a second time
+        (k 'bar))
+
+        ((= c 2)
+        ; k was invoked twice, invoke it a third time
+        (k 'baz))
+
+        ((= c 3)
+        ; third time's the charm!
+        (display "final value of c is ")
+        (display c)
+        (newline)
+        c)
+
+        (else
+        (display "error! unexpected value for c ")
+        (display c)
+        (newline))))
+```
+
+Pasting the preceding into a Scheme REPL should produce the following output:
+
+```
+initial value of counter is 0
+resumed with foo, counter is now 1
+resumed with bar, counter is now 2
+resumed with baz, counter is now 3
+final value of c is 3
+3
+```
 
 ### [dynamic-wind.scm](./dynamic-wind.scm)
 
@@ -746,7 +865,7 @@ programmer to arrange that a particular block of code will be executed whenever
 and however a given execution context is exited.
 
 As demonstrated by [return-resume.scm](./return-resume.scm) and
-[return-resumable](./return-resumable.scm), first-class continuations up the
+[make-resumable](./make-resumable.scm), first-class continuations up the
 ante by not only allowing an execution context to exit "prematurely" but also
 allowing such previously exited contexts to be re-entered. Scheme's equivalent
 of `unwind-protect` is called `dynamic-wind`, and it provides the ability to
@@ -758,18 +877,18 @@ execution boundary is crossed.
 [dynamic-wind.scm](./dynamic-wind.scm) contains two functions:
 
 1. `continuation-demo` wraps a closure created by
-   [return-resumable](./return-resumable.scm) in an invocation of
+   [make-resumable](./make-resumable.scm) in an invocation of
    `dynamic-wind`
 
 2. `test` invokes `continuation-demo` multiple times
 
 ```scheme
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; wrap a continuation created using ./return-resumable.scm in stack
+;; wrap a continuation created using ./make-resumable.scm in stack
 ;; winding / unwinding protection
 (define (continuation-demo)
 
-  (let ((resumable (return-resumable)))
+  (let ((resumable (make-resumable)))
 
     (dynamic-wind
 
@@ -814,7 +933,7 @@ execution boundary is crossed.
 
     ;; bind c to the value returned by invoking (continuation-demo);
     ;; i.e. c will initially be bound to the continuation named resume
-    ;; in the body of return-resumable
+    ;; in the body of make-resumable
     (let ((c (continuation-demo)))
 
       ;; execution will enter the body of this let multiple times

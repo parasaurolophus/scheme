@@ -1,11 +1,11 @@
 ;; Copyright (c) 2024 Kirk Rader
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; wrap a continuation created using ./return-resumable.scm in stack
+;; wrap a continuation created using ./make-resumable.scm in stack
 ;; winding / unwinding protection
 (define (continuation-demo)
 
-  (let ((resumable (return-resumable)))
+  (let ((resumable (make-resumable)))
 
     (dynamic-wind
 
@@ -50,7 +50,7 @@
 
     ;; bind c to the value returned by invoking (continuation-demo);
     ;; i.e. c will initially be bound to the continuation named resume
-    ;; in the body of return-resumable
+    ;; in the body of make-resumable
     (let ((c (continuation-demo)))
 
       ;; execution will enter the body of this let multiple times

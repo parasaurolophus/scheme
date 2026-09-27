@@ -36,21 +36,21 @@ Consider the following formulas of &lambda;-calculus (with the addition of
 [Church Numerals] and corresponding arithmetic operations):
 
 $$
-\begin{split}
-    \text{let } f & = \left( \lambda x . \left( x + 1 \right) \right) \\
-    \text{and } n & = \left( f \ 2 \right) \\
-     \therefore n & \equiv 3
-\end{split}
+\begin{align*}
+    \text{let} & f = \left( \lambda x . \left( x + 1 \right) \right) \\
+    \text{and} & n = \left( f \ 2 \right) \\
+     \therefore & n \equiv 3
+\end{align*}
 $$
 
 > _[Note that Church would have written the preceding on a chalkboard as:_
 >
 > $$
-> \begin{split}
->    \text{let } f & = \lambda x . + x \ 1 \\
->    \text{and } n & = f \ 2 \\
->     \therefore n & \equiv 3
-> \end{split}
+> \begin{align*}
+>    \text{let} & f = \lambda x . + x \ 1 \\
+>    \text{and} & n = f \ 2 \\
+>     \therefore & n \equiv 3
+> \end{align*}
 > $$
 >
 > _He was a huge fan of prefix (a.k.a. Polish) notation and missed no

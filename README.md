@@ -143,22 +143,23 @@ why you should not try to write Lisp source code in any editor other than
 > Common Lisp?"
 >
 > Lisp dialects have a long and occasionally somewhat sordid history full of the
-> kind of drama to which any large family is prone. Suffice it to say here that
-> given the demands that Lisp's semantics place on computer hardware it was
+> kind of dysfunction to which any large family is prone. Suffice it to say here
+> that given the demands that Lisp's semantics place on computer hardware it was
 > recognized early on that general purpose machines of the kind available in the
 > 1960's were simply not up to the task of running Lisp interpreters or even
-> compiled Lisp code. The same team of researchers at MIT who were developing
-> Lisp also started developing specialized computer hardware optimized for
-> running it. By the 1970's, the MIT Lisp Machine team had formed a company,
-> _Synbolics_ which marketed such specialized devices. The dialect of Lisp that
-> ran on Symbolics hardware was called _Zetalisp_ and was a continuation of the
-> work the academic team in the MAC Lab (no relation to Applie's _Macintosh_) at
-> MIT had been doing on _Maclisp_. When the speed of general purpose hardware
-> finally caught up to and surpassed that of sepcialized machines from
-> _Symbolics_ and its competitors in the 1980's, a movement developed to create
-> a "universal" dialect of Lisp that was hardware neutral but at least somewhat
-> backwards compatible with all of the commerical software that had been written
-> in Maclisp derived dialects. The result of that effort was ANSI Common Lisp.
+> compiled Lisp code for practical applications. The same team of researchers at
+> MIT who were developing Lisp also started developing specialized computer
+> hardware optimized for running it. By the 1970's, the MIT Lisp Machine team
+> had formed a company, _Synbolics_ which marketed such specialized devices. The
+> dialect of Lisp that ran on Symbolics hardware was called _Zetalisp_ and was a
+> continuation of the work the academic team in the MAC Lab (no relation to
+> Applie's _Macintosh_) at MIT had been doing on _Maclisp_. When the speed of
+> general purpose hardware finally caught up to and surpassed that of
+> sepcialized machines from _Symbolics_ and its competitors in the 1980's, a
+> movement developed to create a "universal" dialect of Lisp that was hardware
+> neutral but at least somewhat backwards compatible with all of the commerical
+> software that had been written in Maclisp derived dialects. The result of that
+> effort was ANSI Common Lisp.
 >
 > Unfortunately, Common Lisp hearkens back to the very earliest versions of
 > Lisp. It retains a number of features that were designed as expediencies based
@@ -168,7 +169,7 @@ why you should not try to write Lisp source code in any editor other than
 > resulting language shows every sign of having been designed by a large and
 > cantankerous committee.
 >
-> Scheme's designers were motivated in the 1980's to develop a language that was
+> In parallel, Scheme's designers were motivated to develop a language that was
 > far more streamlined and in keeping with the minimalist expressive power of
 > &lambda;-Calculus. They succeeded.
 
@@ -178,9 +179,9 @@ Scheme can famously be shown to be "Turing complete" -- i.e. capable of
 representing the behavior of any possible a-machine -- using only a tiny handful
 of built-in data types and expression-defining special forms like `cons`, `car`,
 `cdr`, `if` and, critically, `lambda` and `call-with-current-continuation`
-(usually abbrivated `call/cc`) in lieu of a dramatically larger number of
-keywords and special forms to represent things like loops and various other
-kinds of special case flow-of-control.
+(often abbrivated `call/cc`) in lieu of a dramatically larger number of keywords
+and special forms to represent things like loops and various other kinds of
+special case flow-of-control.
 
 Replacing special-purpose flow-of-control constructs by first-class
 continuations and tail-recursion provides benefits similar to those of a RISC
@@ -188,10 +189,10 @@ CPU architecture compared to CISC. You may be able to express a given algorithm
 in the assembly language of a CISC machine using fewer individual instructions
 than the equivalent logic for a RISC machine. But each RISC instruction executes
 faster and their simpler, more "decomposed" semantics provide more opportunities
-for optimization compared to a "one size fits all" set of higher-level
-semantics. It is also easier to prove the correctness or predict the performance
-of programs that are composed of smaller, more consistent semantic building
-blocks.
+for application-specific optimization compared to a "one size fits all" set of
+higher-level semantics. It is also easier to prove the correctness or predict
+the performance of programs that are composed of smaller, more consistent
+semantic building blocks.
 
 Or, at any rate, it _can_ (and, in my not so humble opinion, _should_) be so.
 Over the years, most Scheme implementers have succumbed to pressure from
@@ -509,21 +510,6 @@ executing program's current continuation as a first-class data type.
 
 Scheme does.
 
-<details>
-
-<summary><code>call/cc</code></summary>
-
----
-
-The "official" name for the special form that captures an executing procedure's
-continuation is `call-with-current-continuation`. But the Scheme specification
-defines `call/cc` as an alias for `call-with-current-continuation` to ease
-typing. These examples use `call/cc` throughout.
-
----
-
-</details>
-
 ### [return-early.scm](./return-early.scm)
 
 Given the following definition of `return-early`:
@@ -532,13 +518,14 @@ Given the following definition of `return-early`:
 ;; return-early demonstrates a basic use for continuations: implement
 ;; the "return" statement common in many other languages
 (define (return-early)
-  (call/cc
+  (call-with-current-continuation
    (lambda (return)
 
-     ;; return is bound to call/cc's continuation, which is in tail
-     ;; position relative to return-early
+     ;; return is bound to call-with-current-continuation's continuation,
+     ;; which is in tail position relative to return-early
 
-     (displayln 1)
+     (display 1)
+     (newline)
 
      ;; invoking return causes return-early's continuation to
      ;; immediately receive 2 as its value
@@ -546,7 +533,8 @@ Given the following definition of `return-early`:
 
      ;; execution never reaches here because of the invocation of the
      ;; return continuation in the preceding line
-     (displayln 3))))
+     (display 3)
+     (newline))))
 ```
 
 Excuting the following in a REPL will result in:
@@ -557,28 +545,28 @@ Excuting the following in a REPL will result in:
 2
 ```
 
-This is because 1 is the output from the first line in the body of the
-`lambda`,i.e. `(displayln 1)`, and the result of the whole `call/cc` invocation
-is 2, due to the use of the continuation in the second line in the `lambda`
-body, `(return 2)`.
+This is because 1 is the output from the first line in the body of the `lambda`,
+i.e. `(display 1)`, and the result of the whole `call-with-current-continuation`
+invocation is 2, due to the use of `(return 2)`.
 
 There will be no trace of 3 in the output, because the use of the `return`
-continuation causes the whole `call/cc` form to exit before reaching
-`(displayln 3)`. This is why Scheme has no explicit `return` or `break`
-statements comparable to other languages. Just use `call/cc` instead.
+continuation causes the whole `call-with-current-continuation` form to exit
+before reaching `(display 3)`. This is why Scheme has no explicit `return` or
+`break` statements comparable to other languages. Just use
+`call-with-current-continuation` instead.
 
 ### [return-resume.scm](./return-resume.scm)
 
 There is far more to Scheme's first-class continuations than as a verbose
 version of `return` or `break`. Continuations are procedures and procedures are
 lexical closures. They can not only be bound to local variables using
-`call/cc`, but they can be returned as values and passed as parameters to other
-procedures. When such a procedure is invoked it transfers control back to the
-point in the code for which it is the continuation while "reanimating" the
-previously  exited lexcial environment in which it was created. If such an
-invocation is made to and from tail position, this hand-off of control from
-procedure to procedure can continue indefinitely without danger of stack
-overlow, world without end... and that is the essence of
+`call-with-current-continuation`, but they can be returned as values and passed
+as parameters to other procedures. When such a procedure is invoked it transfers
+control back to the point in the code for which it is the continuation while
+"reanimating" the previously  exited lexcial environment in which it was
+created. If such an invocation is made to and from tail position, this hand-off
+of control from procedure to procedure can continue indefinitely without danger
+of stack overlow, world without end... and that is the essence of
 [CPS](#continuation-passing-style). Before going there, here is how the
 [return-early](./return-early.scm) example can be extended to demonstrate a
 basic kind of resumable exception handling:
@@ -587,25 +575,30 @@ basic kind of resumable exception handling:
 ;; return-resume demonstrates using a continuation to resume a
 ;; previously exited flow-of-control
 (define (return-resume)
-  (call/cc
+  (call-with-current-continuation
    (lambda (return)
 
-     ;; return is bound call/cc's continuation, which is in tail
-     ;; position relative to return-resume
+     ;; return is bound call-with-current-continuation's continuation, which
+     ;; is in tail position relative to return-resume
 
-     (displayln 1)
+     (display 1)
+     (newline)
 
-     ;; invoking return causes return-early's continuation to
-     ;; immediately receive the resume continuation as its value
-     (let ((resumed (call/cc (lambda (resume) (return resume)))))
+     ;; invoking return causes return-early's continuation to immediately
+     ;; receive the resume continuation as its value
 
-       ;; execution only reaches here if the resume continuation is
-       ;; invoked in which case resumed is bound to whatever was
-       ;; passed to it
-       (displayln resumed)
+     (let ((resumed (call-with-current-continuation
+                        (lambda (resume)
+                            (return resume)))))
+
+       ;; execution only reaches here if the resume continuation is invoked in
+       ;; which case resumed is bound to whatever was passed to it
+
+       (display resumed)
+       (newline)
 
        ;; return 2 as the "final" value of return-resume
-       (return 2)))))
+       2))))
 ```
 
 Here is what it looks like to invoke `return-resume` in a REPL:
@@ -622,8 +615,9 @@ foo
 - The initial invocation of `return-resume` displays 1 as a side-effect, as in
   the preceding `return-early` example
 
-- It then invokes `call/cc` internally to bind `resume` to another continuation,
-  this time as the expression being bound to the variable `resumed` in a `let`
+- It then invokes `call-with-current-continuation` internally to bind `resume`
+  to another continuation, this time as the expression being bound to the
+  variable `resumed` in a `let`
 
   - The evaluation of that expression passes the `resume` continuation to the
     `return` continuation
@@ -648,7 +642,7 @@ Understanding the last bullet point is essential.
 
 ### [make-resumable.scm](./make-resumable.scm)
 
-Any non-trivial use of continuation ends up looking like some kind of
+Any non-trivial use of continuations ends up looking like some kind of
 iteration, even when no explicit looping construct or self-recursion is
 involved. Consider this function, which builds on
 [return-resume](./return-resume.scm):
@@ -656,12 +650,6 @@ involved. Consider this function, which builds on
 ```scheme
 ;; make-resumable demonstrates using a continuation to resume a previously
 ;; exited flow-of-control multiple times
-
-;; provide call/cc for strict r5rs or earlier implementation which lack it
-(define-syntax call/cc
-  (syntax-rules ()
-    ((_ proc)
-     (call-with-current-continuation proc))))
 
 ;; return a function which, when invoked, returns a continuation
 ;;
@@ -677,16 +665,19 @@ involved. Consider this function, which builds on
 (define (make-resumable)
   (let ((counter 0))
     (lambda ()
-      (call/cc
+      (call-with-current-continuation
        (lambda (return)
 
          (display "initial value of counter is ")
          (display counter)
          (newline)
 
-         ;; invoking `return` here causes the caller's continuation
-         ;; to immediately receive the `resume` continuation as its value
-         (let ((resumed (call/cc (lambda (resume) (return resume)))))
+         ;; invoking `return` here causes the caller's continuation to
+         ;; immediately receive the `resume` continuation as its value
+
+         (let ((resumed (call-with-current-continuation
+                            (lambda (resume)
+                                (return resume)))))
 
            ;; execution reaches here only if the `resume` continuation is
            ;; invoked in which case `resumed` is bound to whatever was
@@ -759,9 +750,9 @@ The preceding REPL invocations:
 
 4. Invoke the continuation in `k` multiple times.
 
-   - The same side-effect message is displayed each time, reflecting the value
-     bound to `resumed` and the current value of `counter` for that iteration as
-     the body of the same inner `let` is invoked each time.
+   - The side-effect message is displayed each time, reflecting the value bound
+     to `resumed` and the current value of `counter` for that iteration as the
+     body of the same inner `let` is invoked each time.
 
 5. Show that `c` is also updated each time to refect each iteration's "final"
    result.
@@ -778,12 +769,12 @@ Key features of Scheme continuations demonstrated by the preceding include:
 
 As every fan of graphic novels is well aware: with great power comes great
 responsibility (along with a great capacity for making things go horribly wrong
-with very little effort). Creating and using continuations introduces subtle
-dependencies between otherwise disjoint blocks of code. One way in which this
-manifests is order and lexical scope constraints between lines of code that
-refer to a given continuation. Given the order of operations described in detail
-in the preceding sections, one might be tempted to wrap the separate global
-definitions in a `let*` like:
+with very little effort). Creating and using continuations introduces
+syntactically non-obvious dependencies between otherwise disjoint blocks of
+code. One way in which this manifests is order and lexical scope constraints
+between lines of code that refer to a given continuation. Given the order of
+operations described in detail in the preceding sections, one might be tempted
+to wrap the separate global definitions and invocations in a `let*` like:
 
 ```scheme
 ;;; wrong! don't do this!
@@ -797,12 +788,13 @@ definitions in a `let*` like:
 ```
 
 The trouble is that by putting the declaration and initialization of `r`, `c`
-and `k` in a single lexical scope, the setting of `c` to value returned by `(r)`
-becomes part of `r`'s own continuation. Ditto for `k` and `c`. Everything will
-seem to be fine up until the second invocation of `k` in the body of the `let*`,
-at which point overwriting `c` will cascade into having overwritten 'k' such
-that `k` will hold the number 1 rather than the intended continuation initially
-bound to `c`. Something like the following is needed, instead:
+and `k` in a sequentrial execution scope, the setting of `c` to the value
+returned by `(r)` becomes part of `r`'s own continuation. Ditto for `k` and `c`.
+Everything will seem to be fine up until the second invocation of `k` in the
+body of the `let*`, at which point overwriting `c` will cascade into having
+overwritten 'k' such that `k` will hold the number 1 rather than the intended
+continuation initially bound to `c`. Something like the following is needed,
+instead:
 
 ```scheme
 (let ((c #f)
@@ -1099,7 +1091,9 @@ implement them using finrst-class continuations:
          (handler '())
          (timer-handler
           (lambda ()
-            (start-timer! (call/cc do-expire) timer-handler)))
+            (start-timer!
+                (call-with-current-continuation do-expire)
+                timer-handler)))
          (start-timer!
           (lambda (ticks new-handler)
             (set! handler new-handler)
@@ -1116,7 +1110,7 @@ implement them using finrst-class continuations:
               (if active?
                   (error 'engine "attempt to nest engines")
                   (set! active? #t))
-              ((call/cc
+              ((call-with-current-continuation
                 (lambda (escape)
                   (set! do-return
                         (lambda (value ticks)
@@ -1146,7 +1140,9 @@ implement them using finrst-class continuations:
 
   (set! engine-block
         (lambda ()
-          (call/cc (lambda (resume) (do-expire)))))
+          (call-with-current-continuation
+            (lambda (resume)
+                (do-expire)))))
 
   (set! engine-return
         (lambda (value)

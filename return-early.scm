@@ -1,15 +1,20 @@
-;; Copyright (c) 2024 Kirk Rader
+#lang racket
+
+;; Copyright (c) 2024-2026 Kirk Rader
 
 ;; return-early demonstrates a basic use for continuations: implement
 ;; the "return" statement common in many other languages
 (define (return-early)
-  (call/cc
+
+  (call-with-current-continuation
+   
    (lambda (return)
 
-     ;; return is bound to call/cc's continuation, which is in tail
-     ;; position relative to return-early
+     ;; return is bound to call-with-current-continuation's continuation, which
+     ;; is in tail position relative to return-early
 
-     (displayln 1)
+     (display 1)
+     (newline)
 
      ;; invoking return causes return-early's continuation to
      ;; immediately receive 2 as its value
@@ -17,4 +22,10 @@
 
      ;; execution never reaches here because of the invocation of the
      ;; return continuation in the preceding line
-     (displayln 3))))
+     (display 3)
+     (newline))))
+
+(let ((result (return-early)))
+  (if (= result 2)
+      'success
+      (error 'return-early result)))

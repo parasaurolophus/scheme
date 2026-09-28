@@ -1,92 +1,89 @@
-;; Copyright (c) Kirk Rader 2024-2026
+;;; Copyright (c) Kirk Rader 2024-2026
 
-;; make-resumable demonstrates using a continuation to resume a previously
-;; exited flow-of-control multiple times
-
-;; provide call/cc for strict r5rs or earlier implementation which lack it
-(define-syntax call/cc
-  (syntax-rules ()
-    ((_ proc)
-     (call-with-current-continuation proc))))
-
-;; return a function which, when invoked, returns a continuation
-;;
-;; the resumable function's closure includes a counter which is initialized to 0
-;; when it first invoked
-;;
-;; each time the resumable function's continuation is invoked, it increments the
-;; counter and returns the updated value
-;;
-;; as a side-effect, the state of the counter and the value passed back into the
-;; resumable function as a parameter to the continuation are logged to the
-;; console
+;;; return a resumable function
+;;;
+;;; the function returned by calling `make-resumable` itself returns a
+;;; continuation from within a closed-over environment containing a `counter`
+;;; initializzed to to 0
+;;;
+;;; invoking the continuation increments `counter` and returns its new value
+;;;
+;;; the current state of `counter` and the value passed to the continuation are
+;;; logged to the console
 (define (make-resumable)
+
   (let ((counter 0))
     (lambda ()
-      (call/cc
+      (call-with-current-continuation
        (lambda (return)
-
-         (display "initial value of counter is ")
+         (display "counter is initially ")
          (display counter)
          (newline)
-
-         ;; invoking return causes return-early's continuation to
-         ;; immediately receive the resume continuation as its value
-         (let ((resumed (call/cc (lambda (resume) (return resume)))))
-
-           ;; execution only reaches here if the resume continuation is
-           ;; invoked in which case resumed is bound to whatever was
-           ;; passed to it
-
+         (let ((resumed (call-with-current-continuation
+                         (lambda (k) (return k)))))
            (set! counter (+ counter 1))
            (display "resumed with ")
            (display resumed)
            (display ", counter is now ")
            (display counter)
            (newline)
-
-           ;; return counter as the "final" value of return-resume
            counter))))))
 
-;;; unit test for make-resumable
-(define (test)
+;;; unit test for `make-resumable`
+(define (test-make-resumable)
 
-  ; bind c and k outside of the contination of the binding of r
   (let ((c #f)
         (k #f))
 
-    ; set c to the continuation of a resumable computation by invoking the
-    ; function returned from a call to make-resumable
-    (let ((r (make-resumable)))
-      (set! c (r)))
+    (set! c ((make-resumable)))
+
+    ; at this point, `c` is the continuation of the first invocation of a
+    ; function returned by `make-resumable`
+
+    ; since the invocation of `(set! c ...)` is the continuation of the
+    ; contunuation returned by `((make-resumable))`, `c` will be updated again
+    ; and the following `cond` invoked  each time the resumable function's
+    ; continuation is called
+
+    ; i.e. invoking a continuation always results in an implicit loop to some
+    ; earlier point in a program's exeution if that continuation, itself, ever
+    ; returns to its caller
+
+    ; as famously demonstrated by Dybvig and Hieb, this implicit looping
+    ; behavior can be exploited to implement bi-directional ommunication
+    ; between co-routines whose execution is interleaved by passing and
+    ; returning continuations
+
+    ; [see <https://github.com/parasaurolophus/scheme/blob/main/engines.scm> for
+    ; more information]
 
     (cond
 
+      ; when `c` is a continuation, save it to `k` and then invoke it for the
+      ; first time
       ((procedure? c)
-       ; initial invocation of the resumable function returned a
-       ; continuation; set k and invoke it for the first time
        (set! k c)
-       (k 'foo))
+       (k 'first))
 
-      ((= c 1)
-       ; k was invoked once, invoke it a second time
-       (k 'bar))
+      ; after the first invocation of the resumable function, `c` will be
+      ; updated to the current value of the resumable function's `counter` each
+      ; time `k` is called as consequence of the continuation returning 
 
-      ((= c 2)
-       ; k was invoked twice, invoke it a third time
-       (k 'baz))
+      ((= c 1) (k 'second))
 
-      ((= c 3)
-       ; third time's the charm!
-       (display "final value of c is ")
-       (display c)
-       (newline)
-       c)
+      ((= c 2) (k 'third))
 
-      (else
-       (display "error! unexpected value for c ")
-       (display c)
-       (newline)))))
+      ((= c 3) (display "final value of c is ") (display c) (newline))
 
-; invoking unit test
-(test)
+      ; execution should never reach here!
+      (else (display-all "error! unexpected value of c: " c)))))
+
+(test-make-resumable)
+
+; output:
+;
+;     counter is initially 0
+;     resumed with first, counter is now 1
+;     resumed with second, counter is now 2
+;     resumed with third, counter is now 3
+;     final value of c is 3

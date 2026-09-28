@@ -1,24 +1,40 @@
-;; Copyright (c) 2024 Kirk Rader
+#lang racket
+
+;; Copyright (c) 2024-2026 Kirk Rader
 
 ;; return-resume demonstrates using a continuation to resume a
 ;; previously exited flow-of-control
 (define (return-resume)
-  (call/cc
+
+  (call-with-current-continuation
+   
    (lambda (return)
 
-     ;; return is bound call/cc's continuation, which is in tail
-     ;; position relative to return-resume
+     ;; return is bound call-with-current-continuation continuation, which is in
+     ;; tail position relative to return-resume
 
-     (displayln 1)
+     (display 1)
+     (newline)
 
-     ;; invoking return causes return-early's continuation to
-     ;; immediately receive the resume continuation as its value
-     (let ((resumed (call/cc (lambda (resume) (return resume)))))
+     ;; invoking return causes return-early's continuation to immediately
+     ;; receive the resume continuation as its value
+
+     (let ((resumed (call-with-current-continuation
+                     (lambda (resume)
+                       (return resume)))))
 
        ;; execution only reaches here if the resume continuation is
        ;; invoked in which case resumed is bound to whatever was
        ;; passed to it
-       (displayln resumed)
+
+       (display resumed)
+       (newline)
 
        ;; return 2 as the final value of return-resume
-       (return 2)))))
+       2))))
+
+(let ((k (return-resume)))
+  (cond
+    ((procedure? k) (k 'foo))
+    ((= k 2) 'success)
+    (else (error 'return-resume k))))

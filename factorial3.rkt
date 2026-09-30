@@ -1,4 +1,8 @@
+#lang racket
+
 ;; Copyright 2024 Kirk Rader
+
+(require rackunit)
 
 ;; tail-recursive, if a bit verbose, implementation of n! that is not
 ;; susceptible to stack-overflow
@@ -26,3 +30,6 @@
                     a
                     (f (- x 1) (* a x))))))
     (f n 1)))
+
+(test-begin
+ (check = (factorial3 5) 120))

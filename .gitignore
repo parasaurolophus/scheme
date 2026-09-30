@@ -1,6 +1,7 @@
+compiled/
 *~
 \#*
 \**
 *.bak
 *.old
-scratch.scm
+scratch.*

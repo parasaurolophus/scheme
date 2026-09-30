@@ -1,4 +1,8 @@
+#lang racket
+
 ;; Copyright 2024 Kirk Rader
+
+(require rackunit)
 
 ;; don't do this!
 ;;
@@ -11,9 +15,12 @@
 ;; definition of n! with a version where the self-reference is masked
 ;; behind a looping special form (which the scheme compiler will
 ;; transform under the covers into something much more like that in
-;; factorial3.scm, by application of compile-time CPS optimizations)
+;; factorial3.rkt, by application of compile-time CPS optimizations)
 (define (factorial2 n)
   (let ((a 1))
     (do ((x n (- x 1)))
         ((<= x 1) a)
       (set! a (* a x)))))
+
+(test-begin
+ (check = (factorial2 5) 120))

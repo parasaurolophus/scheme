@@ -2,6 +2,8 @@
 
 ;; Copyright (c) 2024-2026 Kirk Rader
 
+(require rackunit)
+
 ;; return-resume demonstrates using a continuation to resume a
 ;; previously exited flow-of-control
 (define (return-resume)
@@ -33,8 +35,9 @@
        ;; return 2 as the final value of return-resume
        2))))
 
-(let ((k (return-resume)))
-  (cond
-    ((procedure? k) (k 'foo))
-    ((= k 2) 'success)
-    (else (error 'return-resume k))))
+(test-begin
+ (let ((k (return-resume)))
+   (cond
+     ((procedure? k) (k 'foo))
+     ((= k 2) (check = k 2))
+     (else (fail)))))

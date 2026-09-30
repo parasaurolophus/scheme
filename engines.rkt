@@ -10,17 +10,15 @@
 
 ;;; No attempt is made here to provide overloaded versions of lambda or other
 ;;; special forms that would implicitly decrement the timer. This means that
-;;; you must explicitly call "decrement-timer" in the body of your engine
+;;; you must explicitly call "decrement-timer" in the bodies of your engine
+;;; procedures.
 
-(define start-timer #f)
-(define stop-timer #f)
-(define decrement-timer #f)
+(require "timer.rkt")
+
 (define make-engine #f)
 (define make-simple-engine #f)
 
-(letrec ((clock 0)
-         (handler #f)
-         (simplify (lambda (engine)
+(letrec ((simplify (lambda (engine)
                      (lambda (ticks return expire)
                        (engine
                         ticks
@@ -103,18 +101,6 @@
                       (set! stack (cdr stack))
                       (apply handler top)))))
          (active? (lambda () (pair? stack))))
-  (set! start-timer (lambda (ticks new-handler)
-                      (set! handler new-handler)
-                      (set! clock ticks)))
-  (set! stop-timer (lambda ()
-                     (let ((remaining clock))
-                       (set! clock 0)
-                       remaining)))
-  (set! decrement-timer
-        (lambda ()
-          (when (> clock 0)
-            (set! clock (- clock 1))
-            (when (= clock 0) (handler)))))
   (set! make-engine (lambda (proc)
                       (letrec ((engine-return
                                 (lambda (value)
@@ -137,52 +123,5 @@
                              (simplify (make-engine (lambda (engine-return)
                                                       (engine-return (proc))))))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Define concurrent-or using engines
-
-(define (first-true . thunks)
-  (letrec ((engines '())
-           (enqueue (lambda (engine)
-                      (set! engines (reverse (cons engine (reverse engines))))))
-           (dequeue (lambda ()
-                      (if (pair? engines)
-                          (let ((engine (car engines)))
-                            (set! engines (cdr engines))
-                            engine)
-                          (error 'dequeue "queue is empty"))))
-           (run (lambda ()
-                  (and (pair? engines)
-                       ((dequeue)
-                        1
-                        (lambda (result ticks) (or result (run)))
-                        (lambda (engine) (enqueue engine) (run)))))))
-    (for-each (lambda (thunk)
-                (enqueue (make-simple-engine thunk)))
-              thunks)
-    (run)))
-
-(define-syntax concurrent-or
-  (syntax-rules ()
-    ((_ expression ...)
-     (first-true (lambda () expression) ...))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(let ((infinite-loop (lambda (label)
-                       (lambda ()
-                         (let loop ((count 0))
-                           (decrement-timer)
-                           (printf "~a ~a~%" label count)
-                           (loop (+ count 1))))))
-      (finite-loop (lambda (label max result)
-                     (lambda ()
-                       (let loop ((count 0))
-                         (decrement-timer)
-                         (printf "~a ~a~%" label count)
-                         (if (>= count max)
-                             result
-                             (loop (+ count 1))))))))
-  (concurrent-or
-   ((finite-loop 'finite-a 4 #f))
-   ((infinite-loop 'infinite))
-   ((finite-loop 'finite-b 9 'b))))
+(provide make-engine
+         make-simple-engine)

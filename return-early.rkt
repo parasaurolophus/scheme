@@ -2,6 +2,8 @@
 
 ;; Copyright (c) 2024-2026 Kirk Rader
 
+(require rackunit)
+
 ;; return-early demonstrates a basic use for continuations: implement
 ;; the "return" statement common in many other languages
 (define (return-early)
@@ -25,7 +27,4 @@
      (display 3)
      (newline))))
 
-(let ((result (return-early)))
-  (if (= result 2)
-      'success
-      (error 'return-early result)))
+(check = (return-early) 2)

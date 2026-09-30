@@ -1,3 +1,7 @@
+#lang racket
+
+(require rackunit)
+
 ;; Copyright 2024 Kirk Rader
 
 ;; naive implementation of n!, susceptible to stack-overflow
@@ -18,3 +22,6 @@
   (if (<= n 1)
       1
       (* n (factorial1 (- n 1)))))
+
+(test-begin
+ (check = (factorial1 5) 120))

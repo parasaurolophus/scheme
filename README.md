@@ -212,9 +212,9 @@ continuations](#first-class-continuations), this makes Continuation Passing
 Style [CPS](#continuation-passing-style) available as a design paradigm at the
 application level.
 
-### [factorial1.scm](./factorial1.scm)
+### [factorial1.rkt](./factorial1.rkt)
 
-In particular, [factorial1.scm](./factorial1.scm) literally implements the
+In particular, [factorial1.rkt](./factorial1.rkt) literally implements the
 traditional definition of $n!$:
 
 $$
@@ -236,9 +236,9 @@ self-recursive implementation of $n!$ in any other programming language.
       (* n (factorial1 (- n 1)))))
 ```
 
-### [factorial2.scm](./factorial2.scm)
+### [factorial2.rkt](./factorial2.rkt)
 
-On the first of several other hands, [factorial2.scm](./factorial2.scm) avoids
+On the first of several other hands, [factorial2.rkt](./factorial2.rkt) avoids
 the stack overflow issue using the `do` looping special form introduced into
 later versions of Scheme, modeled on the same form from other Lisp dialects.
 This is exactly how $n!$ should be implemented in any procedural programming
@@ -254,16 +254,16 @@ language lacking tail-call optimization.
       (set! a (* a x)))))
 ```
 
-While the [factorial2.scm](./factorial2.scm) version works, it is not considered
+While the [factorial2.rkt](./factorial2.rkt) version works, it is not considered
 good Scheme style, not least because the Scheme compiler will transform it under
 the covers into something fairly closely resembling the version in
-[factorial3.scm](./factorial3.scm) in any case. So why defer such optimizations
+[factorial3.rkt](./factorial3.rkt) in any case. So why defer such optimizations
 to the compiler when applying them yourself results in code that is easier to
 write, read and maintain?
 
-### [factorial3.scm](./factorial3.scm)
+### [factorial3.rkt](./factorial3.rkt)
 
-The version in [factorial3.scm](./factorial3.scm) implements this mathematically
+The version in [factorial3.rkt](./factorial3.rkt) implements this mathematically
 equivalent variation of the traditional definition of $n!$:
 
 $$
@@ -276,7 +276,7 @@ f(x-1, ax) & \text{otherwise}
 $$
 
 In particular, it introduces a helper function, `f`, that implements effectively
-the same self-recursive logic as in [factorial1.scm](./factorial1.scm) but
+the same self-recursive logic as in [factorial1.rkt](./factorial1.rkt) but
 places the self-call in _tail position_.
 
 <details>
@@ -292,8 +292,8 @@ the last thing the calling function does such that whatever the call returns
 becomes the value of the caller without further access or manipulation by the
 caller.
 
-In the case of [factorial1.scm](./factorial1.scm) vs
-[factorial3.scm](./factorial3.scm), the self-call in the former is _not_ in tail
+In the case of [factorial1.rkt](./factorial1.rkt) vs
+[factorial3.rkt](./factorial3.rkt), the self-call in the former is _not_ in tail
 position because first `factorial1` calls itself, then it multiplies the
 returned value by its own parameter before returning. This requires the use of a
 distinct _stack frame_ at each level in the calling hierarchy to keep track of
@@ -353,8 +353,8 @@ sequence, only the last subform is in tail position:
 The Scheme specification requires that the compiler detect such tail-calls and
 optimize them in such a way that the resulting code is at least (if not more)
 efficient than the code emitted for an equivalent `do` or `for` loop, without
-growing the stack. So [factorial3.scm](./factorial3.scm) has all of the same
-performance and memory optimizations as [factorial2.scm](./factorial2.scm), but
+growing the stack. So [factorial3.rkt](./factorial3.rkt) has all of the same
+performance and memory optimizations as [factorial2.rkt](./factorial2.rkt), but
 with [CPS](#continuation-passing-style) based optimizations pre-applied at the
 source-code level.
 
@@ -370,12 +370,12 @@ source-code level.
 
 But wait! There's more!
 
-### [factorial4.scm](./factorial4.scm)
+### [factorial4.rkt](./factorial4.rkt)
 
-Finally, [factorial4.scm](./factorial4.scm) implements 100% identical logic to
-[factorial3.scm](./factorial3.scm) but using a named `let` to make the code
-more readable. In fact, the version in [factorial4.scm](./factorial4.scm) is
-highly reminiscent of that in [factorial1.scm](./factorial1.scm), making it
+Finally, [factorial4.rkt](./factorial4.rkt) implements 100% identical logic to
+[factorial3.rkt](./factorial3.rkt) but using a named `let` to make the code
+more readable. In fact, the version in [factorial4.rkt](./factorial4.rkt) is
+highly reminiscent of that in [factorial1.rkt](./factorial1.rkt), making it
 quite obvious that the two functions are mathematically equivalent, while still
 avoiding the potential for stack overlows.
 
@@ -389,9 +389,9 @@ avoiding the potential for stack overlows.
         (f (- x 1) (* a x)))))
 ```
 
-Even though [factorial2](./factorial2.scm) will seem much more intuitive at
-first glance than [factorial3](./factorial3.scm) or
-[factorial4](./factorial4.scm) to programmers coming to Scheme from other
+Even though [factorial2](./factorial2.rkt) will seem much more intuitive at
+first glance than [factorial3](./factorial3.rkt) or
+[factorial4](./factorial4.rkt) to programmers coming to Scheme from other
 languages (even other Lisp dialects), Scheme was designed from the ground up to
 support self-recursion in tail position as the natural way to implement
 iteration. The original authors of the first version of Scheme coined the term
@@ -510,7 +510,7 @@ executing program's current continuation as a first-class data type.
 
 Scheme does.
 
-### [return-early.scm](./return-early.scm)
+### [return-early.rkt](./return-early.rkt)
 
 Given the following definition of `return-early`:
 
@@ -555,7 +555,7 @@ before reaching `(display 3)`. This is why Scheme has no explicit `return` or
 `break` statements comparable to other languages. Just use
 `call-with-current-continuation` instead.
 
-### [return-resume.scm](./return-resume.scm)
+### [return-resume.rkt](./return-resume.rkt)
 
 There is far more to Scheme's first-class continuations than as a verbose
 version of `return` or `break`. Continuations are procedures and procedures are
@@ -568,7 +568,7 @@ created. If such an invocation is made to and from tail position, this hand-off
 of control from procedure to procedure can continue indefinitely without danger
 of stack overlow, world without end... and that is the essence of
 [CPS](#continuation-passing-style). Before going there, here is how the
-[return-early](./return-early.scm) example can be extended to demonstrate a
+[return-early](./return-early.rkt) example can be extended to demonstrate a
 basic kind of resumable exception handling:
 
 ```scheme
@@ -640,12 +640,12 @@ foo
 
 Understanding the last bullet point is essential.
 
-### [make-resumable.scm](./make-resumable.scm)
+### [make-resumable.rkt](./make-resumable.rkt)
 
 Any non-trivial use of continuations ends up looking like some kind of
 iteration, even when no explicit looping construct or self-recursion is
 involved. Consider this function, which builds on
-[return-resume](./return-resume.scm):
+[return-resume](./return-resume.rkt):
 
 ```scheme
 ;; make-resumable demonstrates using a continuation to resume a previously
@@ -844,7 +844,7 @@ final value of c is 3
 3
 ```
 
-### [dynamic-wind.scm](./dynamic-wind.scm)
+### [dynamic-wind.rkt](./dynamic-wind.rkt)
 
 Any language which supports the ability to exit early from the body of a
 computation -- even by way of a humble `return` statement -- requires the
@@ -856,8 +856,8 @@ provides `defer`. And so on. All of these share the feature of allowing a
 programmer to arrange that a particular block of code will be executed whenever
 and however a given execution context is exited.
 
-As demonstrated by [return-resume.scm](./return-resume.scm) and
-[make-resumable](./make-resumable.scm), first-class continuations up the
+As demonstrated by [return-resume.rkt](./return-resume.rkt) and
+[make-resumable](./make-resumable.rkt), first-class continuations up the
 ante by not only allowing an execution context to exit "prematurely" but also
 allowing such previously exited contexts to be re-entered. Scheme's equivalent
 of `unwind-protect` is called `dynamic-wind`, and it provides the ability to
@@ -866,17 +866,17 @@ execution context is entered and another function must always be called after
 the protected context, no matter how many times and in what ways the protected
 execution boundary is crossed.
 
-[dynamic-wind.scm](./dynamic-wind.scm) contains two functions:
+[dynamic-wind.rkt](./dynamic-wind.rkt) contains two functions:
 
 1. `continuation-demo` wraps a closure created by
-   [make-resumable](./make-resumable.scm) in an invocation of
+   [make-resumable](./make-resumable.rkt) in an invocation of
    `dynamic-wind`
 
 2. `test` invokes `continuation-demo` multiple times
 
 ```scheme
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; wrap a continuation created using ./make-resumable.scm in stack
+;; wrap a continuation created using ./make-resumable.rkt in stack
 ;; winding / unwinding protection
 (define (continuation-demo)
 
@@ -990,9 +990,9 @@ languages and compilation strategies, but for implementing complex application
 code for any purpose, built from a small number of provably correct semantic
 building blocks.
 
-### [engines.scm](./engines.scm)
+### [engines.rkt](./engines.rkt)
 
-For example, [engines.scm](./engines.scm) is an adaptation of Dybvig and Hieb's
+For example, [engines.rkt](./engines.rkt) is an adaptation of Dybvig and Hieb's
 classic paper, _Engines from Continuations_ using a slightly more modern
 version of Scheme. The _make-engine_, _engine-block_ and _engine-return_ family
 of procedures provides a model for cooperative multi-tasking out of which many
@@ -1022,7 +1022,7 @@ with built-in support for true parallel execution. Consider yourself warned!
 
 </details>
 
-[engines.scm](./engines.scm) defines four global procedures,
+[engines.rkt](./engines.rkt) defines four global procedures,
 `decrement-timer!`, `make-engine`, `engine-block` and `engine-return` within a
 lexical scope where they share a number of state variables and helper
 procedures common to them all but private to themselves as a tightly coupled
@@ -1195,9 +1195,9 @@ _goroutines_.
 
 </details>
 
-### [engines-test.scm](./engines-test.scm)
+### [engines-test.rkt](./engines-test.rkt)
 
-Putting all of the above together, [engines-test.scm](./engines-test.scm)
+Putting all of the above together, [engines-test.rkt](./engines-test.rkt)
 provides an example of using engines which also functions as a basic unit test.
 It defines a macro, `concurrent-or`, which whose behavior is like the built-in
 `or` operator except that it uses engines to interleave evaluation of its
@@ -1218,7 +1218,7 @@ will return `#t`:
 ```
 
 given the definition of `concurrent-or` in
-[engines-test.scm](./engines-test.scm). This works because `concurrent-or` wraps
+[engines-test.rkt](./engines-test.rkt). This works because `concurrent-or` wraps
 each parameter as the body of a thunk and passes them to an invocation of
 `first-true`. The latter invokes each thunk as an engine whose expire routine
 invokes the continuation of the next in a round-robin fashion. So long as all

@@ -1,7 +1,11 @@
+#lang racket
+
 ;; Copyright (c) 2024 Kirk Rader
 
+(require "make-resumable.rkt")
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; wrap a continuation created using ./make-resumable.scm in stack
+;; wrap a continuation created using ./make-resumable.rkt in stack
 ;; winding / unwinding protection
 (define (continuation-demo)
 

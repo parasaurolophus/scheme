@@ -4,6 +4,12 @@ Copyright &copy; 2024-2026 Kirk Rader
 
 Various Scheme programming examples.
 
+> [_Note: The Scheme code examples in this repository use the [Racket] dialect,
+> including its module system, unit test framework, and some convenience
+> functions like_ `printf`. _It is quite straightforward to port these to some
+> other dialect, for example by replacing_ `require` _with_ `load` _and_
+> `printf` _with a sequence of calls to_ `display` _etc._]
+
 ## Background
 
 > ...conditionals, procedure calls, and continuations are the only control
@@ -1498,4 +1504,5 @@ any special looping, exception handling or other pre-defined control structures.
 [Computability Theory]: https://en.wikipedia.org/wiki/Computability_theory
 [Emacs]: https://www.gnu.org/software/emacs/
 [&lambda;-Calculus]: https://en.wikipedia.org/wiki/Lambda_calculus
+[Racket]: https://racket-lang.org/
 [sexpr]: https://en.wikipedia.org/wiki/S-expression

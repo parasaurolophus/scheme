@@ -1,42 +1,42 @@
+; Copyright (c) 2024-2026 Kirk Rader
+
 #lang racket
 
-;; Copyright (c) 2024-2026 Kirk Rader
-
-(require rackunit)
-
-;; return-resume demonstrates using a continuation to resume a
-;; previously exited flow-of-control
+; return-resume demonstrates using a continuation to resume a previously exited flow-of-control
 (define (return-resume)
 
   (call-with-current-continuation
-   
-   (lambda (return)
 
-     ;; return is bound call-with-current-continuation continuation, which is in
-     ;; tail position relative to return-resume
+    (lambda (return)
 
-     (display 1)
-     (newline)
+      ; return is bound call-with-current-continuation continuation, which is in tail position relative
+      ; to return-resume
 
-     ;; invoking return causes return-early's continuation to immediately
-     ;; receive the resume continuation as its value
+      (display 1)
+      (newline)
 
-     (let ((resumed (call-with-current-continuation
-                     (lambda (resume)
-                       (return resume)))))
+      ; invoking return causes return-early's continuation to immediately receive the resume
+      ; continuation as its value
 
-       ;; execution only reaches here if the resume continuation is
-       ;; invoked in which case resumed is bound to whatever was
-       ;; passed to it
+      (let ((resumed (call-with-current-continuation
+                       (lambda (resume)
+                         (return resume)))))
 
-       (display resumed)
-       (newline)
+        ; execution only reaches here if the resume continuation is invoked in which case resumed is
+        ; bound to whatever was passed to it
 
-       ;; return 2 as the final value of return-resume
-       2))))
+        (display resumed)
+        (newline)
 
-(let ((k (return-resume)))
-  (cond
-    ((procedure? k) (k 'foo))
-    ((= k 2) k)
-    (else (fail (format "unexpected value for k: ~a" k)))))
+        ; return 2 as the final value of return-resume
+        2))))
+
+(module+ test
+
+  (require rackunit)
+
+  (let ((k (return-resume)))
+    (cond
+      ((procedure? k) (k 'foo))
+      ((= k 2) (check-true #t) k)
+      (else (fail (format "unexpected value for k: ~a" k))))))

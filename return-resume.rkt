@@ -35,9 +35,8 @@
        ;; return 2 as the final value of return-resume
        2))))
 
-(test-begin
- (let ((k (return-resume)))
-   (cond
-     ((procedure? k) (k 'foo))
-     ((= k 2) (check = k 2))
-     (else (fail)))))
+(let ((k (return-resume)))
+  (cond
+    ((procedure? k) (k 'foo))
+    ((= k 2) k)
+    (else (fail (format "unexpected value for k: ~a" k)))))

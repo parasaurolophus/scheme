@@ -27,4 +27,5 @@
      (display 3)
      (newline))))
 
-(check = (return-early) 2)
+(let ((result (return-early)))
+  (check = result 2 (format "expected 2, got ~a" result)))

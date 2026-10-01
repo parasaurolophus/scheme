@@ -17,5 +17,5 @@
         a
         (f (- x 1) (* a x)))))
 
-(test-begin
- (check = (factorial4 5) 120))
+(let ((result (factorial4 5)))
+   (check = result 120 (format "expected 120, got ~A" result)))

@@ -34,52 +34,50 @@
            counter))))))
 
 ;;; unit test for `make-resumable`
-(test-begin
+(let ((c #f)
+      (k #f))
 
- (let ((c #f)
-       (k #f))
+  (set! c ((make-resumable)))
 
-   (set! c ((make-resumable)))
+  ; at this point, `c` is the continuation of the first invocation of a
+  ; function returned by `make-resumable`
 
-   ; at this point, `c` is the continuation of the first invocation of a
-   ; function returned by `make-resumable`
+  ; since the invocation of `(set! c ...)` is the continuation of the
+  ; contunuation returned by `((make-resumable))`, `c` will be updated again
+  ; and the following `cond` invoked  each time the resumable function's
+  ; continuation is called
 
-   ; since the invocation of `(set! c ...)` is the continuation of the
-   ; contunuation returned by `((make-resumable))`, `c` will be updated again
-   ; and the following `cond` invoked  each time the resumable function's
-   ; continuation is called
+  ; i.e. invoking a continuation always results in an implicit loop to some
+  ; earlier point in a program's exeution if that continuation, itself, ever
+  ; returns to its caller
 
-   ; i.e. invoking a continuation always results in an implicit loop to some
-   ; earlier point in a program's exeution if that continuation, itself, ever
-   ; returns to its caller
+  ; as famously demonstrated by Dybvig and Hieb, this implicit looping
+  ; behavior can be exploited to implement bi-directional ommunication
+  ; between co-routines whose execution is interleaved by passing and
+  ; returning continuations
 
-   ; as famously demonstrated by Dybvig and Hieb, this implicit looping
-   ; behavior can be exploited to implement bi-directional ommunication
-   ; between co-routines whose execution is interleaved by passing and
-   ; returning continuations
+  ; [see <https://github.com/parasaurolophus/scheme/blob/main/engines.rkt> for
+  ; more information]
 
-   ; [see <https://github.com/parasaurolophus/scheme/blob/main/engines.rkt> for
-   ; more information]
+  (cond
 
-   (cond
+    ; when `c` is a continuation, save it to `k` and then invoke it for the
+    ; first time
+    ((procedure? c)
+     (set! k c)
+     (k 'first))
 
-     ; when `c` is a continuation, save it to `k` and then invoke it for the
-     ; first time
-     ((procedure? c)
-      (set! k c)
-      (k 'first))
+    ; after the first invocation of the resumable function, `c` will be
+    ; updated to the current value of the resumable function's `counter` each
+    ; time `k` is called as consequence of the continuation returning 
 
-     ; after the first invocation of the resumable function, `c` will be
-     ; updated to the current value of the resumable function's `counter` each
-     ; time `k` is called as consequence of the continuation returning 
+    ((= c 1) (k 'second))
 
-     ((= c 1) (k 'second))
+    ((= c 2) (k 'third))
 
-     ((= c 2) (k 'third))
+    ((= c 3) c)
 
-     ((= c 3) (check = c 3))
-
-     ; execution should never reach here!
-     (else (fail)))))
+    ; execution should never reach here!
+    (else (fail (format "unexpected value for c: ~a" c)))))
 
 (provide make-resumable)

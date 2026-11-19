@@ -15,7 +15,7 @@
 ; while f explicitly implements the same self-recursive logic as factorial1, it does so by making the
 ; recursive call in tail-position, which in scheme makes all the difference. the scheme specification
 ; requires that the compiler detect such tail-calls and optimize them such that they perform as or
-; more efficiently as special-purpose looping constructs like "do" while not growing the stack
+; more efficiently than special-purpose looping constructs like "do" while not growing the stack
 ;
 ; e.g. 4! = f(4,1) = f(3, 4*1) = f(2, 4*3*1) = f(1, 4*3*2*1) = 24
 (define (factorial3 n)

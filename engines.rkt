@@ -32,7 +32,6 @@
 (define make-simple-engine #f)
 
 (letrec ((simplify (lambda (engine)
-                     ; helper used by make-simple-engine
                      (lambda (ticks return expire)
                        (engine
                          ticks

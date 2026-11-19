@@ -12,8 +12,7 @@
       ; return is bound call-with-current-continuation continuation, which is in tail position relative
       ; to return-resume
 
-      (display 1)
-      (newline)
+      (displayln 1)
 
       ; invoking return causes return-early's continuation to immediately receive the resume
       ; continuation as its value
@@ -25,8 +24,7 @@
         ; execution only reaches here if the resume continuation is invoked in which case resumed is
         ; bound to whatever was passed to it
 
-        (display resumed)
-        (newline)
+        (displayln resumed)
 
         ; return 2 as the final value of return-resume
         2))))

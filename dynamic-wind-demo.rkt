@@ -5,25 +5,24 @@
 (require "make-resumable.rkt")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; wrap a continuation created using ./make-resumable.rkt in stack ; winding / unwinding protection
+; wrap a continuation created using ./make-resumable.rkt in stack winding / unwinding protection
 ;
-; This function will write the same output to the console as make-resumable, with additional lines
-; interpolated due to the before and after thunks inject by dynamic-wind
+; this function will write the same output to the console as make-resumable, with additional lines
+; interpolated due to the before and after thunks injected by dynamic-wind
 (define (dynamic-wind-demo)
 
   (let ((resumable (make-resumable)))
 
     (dynamic-wind
 
-      ;; the "before" thunk is invoked each time execution enters the ; protected dynamic context
+      ; the "before" thunk is invoked each time execution enters the protected dynamic context
       (lambda () (printf "~%entering protected context~%"))
 
-      ;; the "body" thunk is executed after the "before" thunk has ; returned and before the "after"
-      ;thunk is invoked, each time ; execution enters or leaves the body of this call to ;
-      ;dynamic-wind
+      ; the "body" thunk is executed after the "before" thunk has returned and before the "after"
+      ; thunk is invoked, each time ; execution enters or leaves the body of this call to dynamic-wind
       resumable
 
-      ;; the "after" thunk is invoked each time execution leaves the ; protected dynamic context
+      ; the "after" thunk is invoked each time execution leaves the protected dynamic context
       (lambda () (printf "exiting protected context~%")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -14,8 +14,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Wrap each thunk in an engine and run them all in a round-robin queue. Terminate the queue when one
 ; of the engines returns a value other than #f or all engines complete. Note that this will work
-; correctly even if one or more engines would never complete, so long as at least returns a value
-; other than #f.
+; correctly even if one or more engines would never complete, so long as at least one engine
+; completes, returning a value other than #f.
 (define (first-true . thunks)
   (letrec ((engines '())
            (enqueue (lambda (engine)
@@ -51,38 +51,41 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; unit test covers concurrent-or and, therefore, first-true, make-engine,  decrement-timer etc.
 ;
-; Invoke from the command line `raco test concurrent-or.rkt`
+; Invoke from the shell: `raco test concurrent-or.rkt`
 (module+ test
 
   (require rackunit)
 
-  (call-with-values
-    (lambda ()
-      (let* ((counts (make-hash))
-             (increment (lambda (label)
-                          (let ((count (hash-ref counts label 0)))
-                            (hash-set! counts label (+ count 1))))))
-        (values
-          (concurrent-or
-            (timed-let loop ((count 0))
-                       (increment 'a)
-                       (if (>= count 4)
-                           #f
-                           (loop (+ count 1))))
-            (timed-let loop ((count 0))
-                       (increment '∞)
-                       (loop (+ count 1)))
-            (timed-let loop ((count 0))
-                       (increment 'b)
-                       (if (>= count 9)
-                           'b
-                           (loop (+ count 1)))))
-          counts)))
-    (lambda (result counts)
-      (check eq? result 'b (format "expected result 'b, got '~a" result))
-      (let ((count (hash-ref counts 'a)))
-        (check = count 5 (format "expected 'a count to be 5, got ~a" count)))
-      (let ((count (hash-ref counts 'b)))
-        (check = count 10 (format "expected 'b count to be 10, got ~a" count)))
-      (let ((count (hash-ref counts '∞)))
-        (check = count 10 (format "expected '∞ count to be 10, got ~a" count))))))
+  (let* ((counts (make-hash))
+         ; increment a labeled counter
+         (increment (lambda (label)
+                      (let ((count (hash-ref counts label 0)))
+                        (hash-set! counts label (+ count 1)))))
+         ; invoke 3 computations concurrently
+         (result (concurrent-or
+                   ; a computation that returns #f after 5 iterations
+                   (timed-let loop ((count 0))
+                              (increment 'a)
+                              (if (>= count 4)
+                                  #f
+                                  (loop (+ count 1))))
+                   ; a computation that never terminates
+                   (timed-let loop ((count 0))
+                              (increment '∞)
+                              (loop (+ count 1)))
+                   ; a computation that return 'b after 10 iterations
+                   (timed-let loop ((count 0))
+                              (increment 'b)
+                              (if (>= count 9)
+                                  'b
+                                  (loop (+ count 1)))))))
+    ; check result and counts after concurrent-or terminates (which it should, despite the infinite
+    ; loop in one of its terms because another does terminate with a value other than #f in a finite
+    ; amount of time)
+    (check eq? result 'b (format "expected result 'b, got '~a" result))
+    (let ((count (hash-ref counts 'a)))
+      (check = count 5 (format "expected 'a count to be 5, got ~a" count)))
+    (let ((count (hash-ref counts 'b)))
+      (check = count 10 (format "expected 'b count to be 10, got ~a" count)))
+    (let ((count (hash-ref counts '∞)))
+      (check = count 10 (format "expected '∞ count to be 10, got ~a" count)))))

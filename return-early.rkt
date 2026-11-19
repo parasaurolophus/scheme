@@ -13,16 +13,14 @@
       ; return is bound to call-with-current-continuation's continuation, which is in tail position
       ; relative to return-early
 
-      (display 1)
-      (newline)
+      (displayln 1)
 
       ; invoking return causes return-early's continuation to immediately receive 2 as its value
       (return 2)
 
       ; execution never reaches here because of the invocation of the return continuation in the
       ; preceding line
-      (display 3)
-      (newline))))
+      (displayln 3))))
 
 (module+ test
 

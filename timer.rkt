@@ -60,10 +60,12 @@
          timed-let*
          timed-letrec)
 
+; raco test timer.rkt
 (module+ test
 
   (require rackunit)
 
+  ; test start-timer and decrement-timer
   (let ((count 0))
     (call/cc
       (lambda (escape)
@@ -78,6 +80,7 @@
             stop-timer))))
     (check = 2 count (format "expected 2, got ~a" count)))
 
+  ; test timed-lambda
   (let ((count 0))
     (call/cc
       (lambda (escape)
@@ -91,6 +94,7 @@
             stop-timer))))
     (check = 1 count (format "expected 1, got ~a" count)))
 
+  ; test timed-let
   (let ((count 0))
     (call/cc
       (lambda (escape)
@@ -103,6 +107,7 @@
           stop-timer)))
     (check = 1 count (format "expected 1, got ~a" count)))
 
+  ; test timed-let*
   (let ((count 0))
     (call/cc
       (lambda (escape)
@@ -117,6 +122,7 @@
           stop-timer)))
     (check = 1 count (format "timed-let* expected 1, got ~a" count)))
 
+  ; test timed-letrec
   (let ((count 0))
     (call/cc
       (lambda (escape)

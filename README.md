@@ -4,33 +4,33 @@ Copyright &copy; 2024-2026 Kirk Rader
 
 Various Scheme programming examples.
 
-> [_Note: The Scheme code examples in this repository use the [Racket] dialect,
-> including its module system, unit test framework, and some convenience
-> functions like_ `printf`. _It is quite straightforward to port these to some
-> other dialect, for example by replacing_ `require` _with_ `load` _and_
-> `printf` _with a sequence of calls to_ `display` _etc._]
+_Note: The Scheme code examples in this repository use the [Racket] dialect,
+including its module system, unit test framework, and some convenience functions
+like_ `printf`. _It is quite straightforward to port these to some other
+dialect, for example by replacing_ `require` _with_ `load` _and_ `printf` _with
+a sequence of calls to_ `display` _etc._
 
 ## Background
 
 > ...conditionals, procedure calls, and continuations are the only control
 > operations provided by Scheme. Looping is accomplished by tail-recursive
-> procedure calls, and support for exception handling and “gotos” is provided
-> by continuations.
+> procedure calls, and support for exception handling and “gotos” is provided by
+> continuations.
 >
 > _Representing Control in the Presence of First-Class Continuations_, Dybvig &
 > Hieb, 1990
 
-Scheme is the programming language of which you have heard but never seen. Or
-if you have seen it, you have shuddered at "all the ridiculous parentheses" and
+Scheme is the programming language of which you have heard but never seen. Or if
+you have seen it, you have shuddered at "all the ridiculous parentheses" and
 looked away.
 
 You have no idea what you have missed.
 
 Just as Turing's [a-machines] provide the theoretical basis for all digital
-computing hardware, Church's [&lambda;-Calculus] is the conceptual framework for
-any possible programming language. The Lisp family of languages began in the
-1960's in an attempt to implement &lambda;-Calculus directly as a programming
-language. Scheme is the ultimate result of that tradition.
+computing hardware, Church's [λ-Calculus] is the conceptual framework for any
+possible programming language. The Lisp family of languages began in the 1960's
+in an attempt to implement λ-Calculus directly as a programming language. Scheme
+is the ultimate result of that tradition.
 
 If you understand what is unique about Scheme and can instinctively apply its
 principles in real-world applications even in less powerful languages, you
@@ -38,39 +38,141 @@ deserve to consider yourself a truly extraordinary coder.
 
 #### No, Really...
 
-Consider the following formulas of &lambda;-calculus (with the addition of
-[Church Numerals] and corresponding arithmetic operations):
+Consider the following formulas of λ-calculus (with the addition of [Church
+Numerals] and corresponding arithmetic operations):
 
-$$
-\begin{align*}
-    \text{let} & f = \left( \lambda x . \left( x + 1 \right) \right) \\
-    \text{and} & n = \left( f \ 2 \right) \\
-     \therefore & n \equiv 3
-\end{align*}
-$$
+<math display="block">
+    <mtable>
+        <mtr>
+            <mtd>
+                <mtext>Let</mtext>
+            </mtd>
+            <mtd style="text-align: left;">
+                <mrow>
+                    <mi>f</mi>
+                    <mo>=</mo>
+                    <mrow>
+                        <mo>λ</mo>
+                        <mi>x</mi>
+                        <mo>.</mo>
+                        <mrow>
+                            <mo>(</mo>
+                            <mi>x</mi>
+                            <mo>+</mo>
+                            <mn>1</mn>
+                            <mo>)</mo>
+                        </mrow>
+                    </mrow>
+                </mrow>
+            </mtd>
+        </mtr>
+        <mtr>
+            <mtd>
+                <mtext>and</mtext>
+            </mtd>
+            <mtd style="text-align: left;">
+                <mrow>
+                    <mi>n</mi>
+                    <mo>=</mo>
+                    <mrow>
+                        <mi>f</mi>
+                        <mo>(</mo>
+                        <mn>2</mn>
+                        <mo>)</mn>
+                    </mrow>
+                </mrow>
+            </mtd>
+        </mtr>
+        <mtr>
+            <mtd>
+                <mspace width="1em" />
+                <mtext>∴</mtext>
+            </mtd>
+            <mtd style="text-align: left;">
+                <mrow>
+                    <mi>n</mi>
+                    <mo>≡</mo>
+                    <mn>3</mn>
+                </mrow>
+            </mtd>
+        </mtr>
+    </mtable>
+</math>
 
-> _[Note that Church would have written the preceding on a chalkboard as:_
->
-> $$
-> \begin{align*}
->    \text{let} & f = \lambda x . + x \ 1 \\
->    \text{and} & n = f \ 2 \\
->     \therefore & n \equiv 3
-> \end{align*}
-> $$
->
-> _He was a huge fan of prefix (a.k.a. Polish) notation and missed no
-> opportunity to extole its virtues, primariy due to the fact that it allows for
-> almost all parentheses to be eliminated from a formal language.]_
+_[Note that Church would have written the preceding on a chalkboard as:_
+
+<math display="block">
+    <mtable>
+        <mtr>
+            <mtd>
+                <mtext>Let</mtext>
+            </mtd>
+            <mtd style="text-align: left;">
+                <mrow>
+                    <mi>f</mi>
+                    <mo>=</mo>
+                    <mrow>
+                        <mo>λ</mo>
+                        <mi>x</mi>
+                        <mo>.</mo>
+                        <mrow>
+                            <mo>+</mo>
+                            <mspace width="0.5em" />
+                            <mi>x</mi>
+                            <mspace width="0.5em" />
+                            <mn>1</mn>
+                        </mrow>
+                    </mrow>
+                </mrow>
+            </mtd>
+        </mtr>
+        <mtr>
+            <mtd>
+                <mtext>and</mtext>
+            </mtd>
+            <mtd style="text-align: left;">
+                <mrow>
+                    <mi>n</mi>
+                    <mo>=</mo>
+                    <mrow>
+                        <mi>f</mi>
+                        <mspace width="0.5em" />
+                        <mn>2</mn>
+                    </mrow>
+                </mrow>
+            </mtd>
+        </mtr>
+        <mtr>
+            <mtd>
+                <mspace width="1em" />
+                <mtext>∴</mtext>
+            </mtd>
+            <mtd style="text-align: left;">
+                <mrow>
+                    <mi>n</mi>
+                    <mo>≡</mo>
+                    <mn>3</mn>
+                </mrow>
+            </mtd>
+        </mtr>
+    </mtable>
+</math>
+
+_He was a huge fan of prefix (a.k.a. Polish) notation and missed no opportunity
+to extole its virtues, primariy due to the fact that it allows for almost all
+parentheses to be eliminated from a formal language. I know because I was there,
+having been an undergraduate in the Philosophy Department at UCLA in the late
+1970's while Church was still teaching courses like_ Topics in Metamathematics
+_to dewy-eyed Sophomores like myself, at the time.]_
 
 
-> The preceding would be read in English as:
->
-> _Let _f_ be a function that adds 1 to its argument and _n_ be the result of
-> applying _f_ to 2. Therefore _n_ is 3._
+The preceding would be read in English as:
 
-In the terminology of formal linguistics, &lambda; is a _variable-binding
-operator_ used to define mathematical computations.
+> _Let_ f _be a function that adds 1 to its argument and_ n _be the result of
+> applying_ f _to 2. Therefore_ n _is 3._
+
+In the terminology of formal linguistics, λ is a _variable-binding operator_
+used to define mathematical computations.
 
 Here is the literal equivalent in just about any dialect of Lisp, including
 Scheme:
@@ -82,10 +184,10 @@ Scheme:
   n)
 ```
 
-Pasting the preceding [sexpr] into a REPL (read-eval-print loop) for any Lisp
+Pasting the preceding [sexpr] into a REPL (Read-Eval-Print Loop) for any Lisp
 environment will display 3 as the result. Many moden Lisp environments will even
-accept a unicode &lambda; character as a synonym for spelling out `lambda` in
-ASCII, making the relationship to &lambda;-Calculus that much more clear:
+accept a unicode λ character as a synonym for spelling out `lambda` in ASCII,
+making the relationship to λ-Calculus that much more clear:
 
 ```scheme
 (let* ((f (λ (x) (+ x 1)))
@@ -94,7 +196,7 @@ ASCII, making the relationship to &lambda;-Calculus that much more clear:
 ```
 
 So many parentheses! It is a great irony that Church, as noted above, was an
-advocate of prefix notation for mathematical operators like $+$ (sometimes
+advocate of prefix notation for mathematical operators like `+` (historically
 called Polish notation after the school of logicians who first described and
 used it), in part because it results in a more consistent syntax with other
 instances of function application, but mostly because it allows for much more
@@ -109,12 +211,12 @@ used to write Lisp source code and they... were never really worked out to any
 useful degree. The original intent had been to implement a language whose source
 code would be much more "mainstream" by comparison to Algol-like languages under
 development at the time while implementing the full flexibility and expressive
-power of the &lambda;-calculus under the covers. As the first Lisp
-implementation started to take shape, however, getting working interpreters and
-compilers going based on S-expressions proved easier than getting consensus on
-what kind of syntax M-expressions should have, so the first generation of Lisp
-programmers just embraced S-expressions as the "official" syntax for Lisp source
-code and the whole idea of M-expression based syntax just fizzled out.
+power of the λ-calculus under the covers. As the first Lisp implementation
+started to take shape, however, getting working interpreters and compilers going
+based on S-expressions proved easier than getting consensus on what kind of
+syntax M-expressions should have, so the first generation of Lisp programmers
+just embraced S-expressions as the "official" syntax for Lisp source code and
+the whole idea of M-expression based syntax just fizzled out.
 
 Had M-expressions been fully realized and adopted, the Lisp family of languages
 would no doubt have ended up with a syntax looking much more familiar to
@@ -177,7 +279,7 @@ why you should not try to write Lisp source code in any editor other than
 >
 > In parallel, Scheme's designers were motivated to develop a language that was
 > far more streamlined and in keeping with the minimalist expressive power of
-> &lambda;-Calculus. They succeeded.
+> λ-Calculus. They succeeded.
 
 #### Scheme is the RISC of Lisps
 
@@ -211,31 +313,62 @@ case.
 
 ## Tail Call Optimization
 
-These examples include a number of definitions of the factorial ($!$) function,
+These examples include a number of definitions of the factorial (`!`) function,
 collectively demonstrating that, in Scheme, looping is logically equivalent to
 self-recursion in tail position. When combined with [first class
 continuations](#first-class-continuations), this makes Continuation Passing
-Style [CPS](#continuation-passing-style) available as a design paradigm at the
+Style ([CPS](#continuation-passing-style)) available as a design paradigm at the
 application level.
 
 ### [factorial1.rkt](./factorial1.rkt)
 
 In particular, [factorial1.rkt](./factorial1.rkt) literally implements the
-traditional definition of $n!$:
+traditional definition of `n!`:
 
-$$
-n! =
-\begin{cases}
-                        1 & \text{if } n \leq 1 \\
-  n (n - 1)! & \text{otherwise}
-\end{cases}
-$$
+<math display="block">
+    <mrow>
+        <mi>n</mi>
+        <mo>!</mo>
+        <mo>=</mo>
+    </mrow>
+    <mo>{</mo>
+    <mtable>
+        <mtr>
+            <mtd style="text-align: left;">
+                <mn>1</mn>
+            </mtd>
+            <mtd style="text-align: left;">
+                <mtext>when</mtext>
+                <mspace width="0.5em" />
+                <mi>n</mi>
+                <mo>&le;</mo>
+                <mn>1</mn>
+            </mtd>
+        </mtr>
+        <mtr>
+            <mtd style="text-align: left;">
+                <mi>n</mi>
+                <mo>&times;</mo>
+                <mo>(</mo>
+                <mi>n</mi>
+                <mo>&minus;</mo>
+                <mn>1</mn>
+                <mo>)</mo>
+                <mo>!</mo>
+            </mtd>
+            <mtd style="text-align: left;">
+                <mtext>otherwise</mtext>
+            </mtd>
+        </mtr>
+    </mtable>
+</math>
 
 in a manner susceptible to stack overflow, just as for any similar
-self-recursive implementation of $n!$ in any other programming language.
+self-recursive implementation of `n!` in any other programming language.
 
 ```scheme
-;; NOT the way to implement n! in scheme (or any other programming language)
+; NOT the way to implement n! in scheme (or any other
+; programming language)
 (define (factorial1 n)
   (if (<= n 1)
       1
@@ -247,12 +380,12 @@ self-recursive implementation of $n!$ in any other programming language.
 On the first of several other hands, [factorial2.rkt](./factorial2.rkt) avoids
 the stack overflow issue using the `do` looping special form introduced into
 later versions of Scheme, modeled on the same form from other Lisp dialects.
-This is exactly how $n!$ should be implemented in any procedural programming
+This is exactly how `n!` should be implemented in any procedural programming
 language lacking tail-call optimization.
 
 ```scheme
-;; another way NOT to define n! in scheme (even though it is the only way to
-;; do so in most programming languages)
+; another way NOT to define n! in scheme (even though it is
+; the only way to do so in most programming languages)
 (define (factorial2 n)
   (let ((a 1))
     (do ((x n (- x 1)))
@@ -270,26 +403,92 @@ write, read and maintain?
 ### [factorial3.rkt](./factorial3.rkt)
 
 The version in [factorial3.rkt](./factorial3.rkt) implements this mathematically
-equivalent variation of the traditional definition of $n!$:
+equivalent variation of the traditional definition of `n!`:
 
-$$
-n! = f(n, 1) \\
-\text{where } f(x, a) =
-\begin{cases}
-         a & \text{if } x \leq 1 \\
-f(x-1, ax) & \text{otherwise}
-\end{cases}
-$$
+<math display="block">
+    <mtable>
+        <mtr>
+            <mtd style="text-align: left;">
+                <mrow>
+                    <mi>n</mi>
+                    <mo>!</mo>
+                </mrow>
+                <mo>=</mo>
+                <mrow>
+                    <mi>f</mi>
+                    <mo>(</mo>
+                    <mi>n</mi>
+                    <mo>,</mo>
+                    <mn>1</mn>
+                    <mo>)</mo>
+                </mrow>
+            </mtd>
+        </mtr>
+        <mtr>
+            <mtd style="text-align: left;">
+                <mtext>where</mtext>
+                <mspace width="0.5em" />
+                <mrow>
+                    <mi>f</mi>
+                    <mo>(</mo>
+                    <mi>x</mi>
+                    <mo>,</mo>
+                    <mn>a</mn>
+                    <mo>)</mo>
+                </mrow>
+                <mo>=</mo>
+                <mo>{</mo>
+                <mrow>
+                    <mtable>
+                        <mtr>
+                            <mtd style="text-align: left;">
+                                <mi>a</mi>
+                            </mtd>
+                            <mtd style="text-align: left;">
+                                <mtext>when</mtext>
+                                <mspace width="0.5em" />
+                                <mi>x</mi>
+                                <mo>&le;</mo>
+                                <mn>1</mn>
+                            </mtd>
+                        </mtr>
+                        <mtr>
+                            <mtd style="text-align: left;">
+                                <mi>f</mi>
+                                <mo>(</mo>
+                                <mrow>
+                                    <mi>x</mi>
+                                    <mo>&minus;</mo>
+                                    <mn>1</mn>
+                                </mrow>
+                                <mo>,</mo>
+                                <mrow>
+                                    <mi>x</mi>
+                                    <mo>&times;</mo>
+                                    <mi>a</mi>
+                                </mrow>
+                                <mo>)</mo>
+                            </mtd>
+                            <mtd style="text-align: left;">
+                                <mtext>otherwise</mtext>
+                            </mtd>
+                        </mtr>
+                    </mtable>
+                </mrow>
+            </mtd>
+        </mtr>
+    </mtable>
+</math>
 
 In particular, it introduces a helper function, `f`, that implements effectively
 the same self-recursive logic as in [factorial1.rkt](./factorial1.rkt) but
 places the self-call in _tail position_.
 
+---
+
 <details>
 
 <summary><b>Tail calls</b></summary>
-
----
 
 To really understand the meaning of the term "tail call" or what it means for a
 call to be in "tail position" you must understand _continuations_, discussed
@@ -352,9 +551,9 @@ sequence, only the last subform is in tail position:
 
 ...and so on.
 
----
-
 </details>
+
+---
 
 The Scheme specification requires that the compiler detect such tail-calls and
 optimize them in such a way that the resulting code is at least (if not more)
@@ -423,11 +622,13 @@ any given statement in any given programming language is usually implicit code
 generated by the compiler, with application-level code invoked along the way in
 a fairly modular (from the compiler's point of view) way.
 
+---
+
 <details>
 
-<summary><b>Diving deep into the flow of control...</b></summary>
-
----
+<summary style="cursor: pointer;">
+    <b>Diving deep into the flow of control...</b>
+</summary>
 
 For example, typing the following in a Scheme REPL (read-eval-print loop):
 
@@ -491,9 +692,9 @@ languages also include looping constructs like `for`, `do`, `while` etc. as well
 as keywords like `return`, `break`, `continue`, `throw`, `catch` and so on to
 handle special-but-not-uncommon corner cases.
 
----
-
 </details>
+
+---
 
 Scheme takes an approach different from nearly any other language by allowing
 application-level code to explicitly "capture" a procedure's continuation at any
@@ -1396,32 +1597,33 @@ like separate control and data buses to support caching, per-process or
 per-thread stacks or heaps, and so on.
 
 The basic paradigm assumed by the Scheme runtime is based on a few basic
-principles common to all widely used digitial computing devices:
+principles common to all widely used digitial computing devices as of the time
+of this writing:
 
 - A CPU with some set of internal working registers and a PC (Program Counter)
 
 - RAM (Random Access Memory) used to store both programs as sequences of
   _opcodes_ (operation codes) and data
 
-Further, the assumption is that the operating system or other system which
-bootstraps programs makes provision for dividing RAM into distinct regions for
-specific purposes, notably regions to hold
+Further, the assumption is that the operating system or other runtime platform
+which bootstraps programs makes provision for dividing RAM into distinct regions
+for specific purposes, notably separate regions to hold
 
 - The sequence of opcodes comprising the program, itself
 
 - Static data specified at compile time
 
-- A heap from which blocks of memory can be dynamically allocated as needed
-during program execution
+- A _heap_ from which blocks of memory can be dynamically allocated as needed
+  during program execution
 
 - A _stack_ for keeping track of a program's state across procedure calls and
   returns
 
-  - Historically, many models of CISC CPU have had a dedicated stack pointer
-    register, SP, for this that is used with dedicated "jump to sub-routine
-    with return address" opcodes; but the compiler for any given language needs
-    to do more than simply invoke such an opcode in order to handle procedure
-    parameters and return values correctly
+Historically, many models of CISC and RISC CPU have had dedicated Program
+Counter (PC) amd Stack Pointer (SP) register that are used with dedicated "jump
+to sub-routine with return address" opcodes; but the compiler for any given
+language needs to do more than simply invoke such an opcode in order to handle
+procedure parameters and return values correctly
 
 ```mermaid
 graph LR
@@ -1445,37 +1647,37 @@ operations the PC increments automatically to the next opcode, then the next as
 each instruction is executed. To allow for non-sequential flow of control, any
 CPU's instruction set includes opcodes which allow a program to load a different
 address into the PC, causing execution to continue executing from the opcode
-stored at the specified location in RAM rathern simply the next one. This is how
-non-sequential flow of control is implemented at the level of the hardware's
-instruction set.
+stored at the specified location in RAM rather than the next one in sequence.
+This is how non-sequential flow of control is implemented at the level of the
+hardware's instruction set.
 
 Given the preceding, the standard model for procedure calling relies on the
-concept of _stack frames_. To make a procedure call which can then return to
-the point from which it was called, wherever that might be in RAM at each such
-invocation, the calling program pushes values onto the stack containing the
-data to pass as arguments to the procedure along with the _return address_,
-i.e. the address to load into the PC register in order for the called procedure
-to jump back to the point from which it was called once the it has completed.
-The combination of parameters and return address is referred to as a
-procedure's stack frame.
+concept of _stack frames_. To make a procedure call which can then return to the
+point from which it was called, wherever that might be in RAM at each such
+invocation, the calling program pushes values onto the stack containing the data
+to pass as arguments to the procedure along with the _return address_, i.e. the
+address to load into the PC register in order for the called procedure to jump
+back to the point from which it was called once the it has completed. The
+combination of parameters and return address is referred to as a procedure's
+stack frame.
 
 The called procedure obtains its parameters by consulting its stack frame and
 performs its operations by way of normal opcode processing. When it has
 completed, it again consults its stack frame for the address to load into the
 PC, effecting the return. Depending on details of a given instruction set's
 design and the memory model defined by a given operating system and compiler,
-either the called procedure or its caller will pop the now-completed
-procedure's frame off the stack when resuming the caller's execution at the
-location specified by the previously called procedure's return address.
+either the called procedure or its caller will pop the now-completed procedure's
+frame off the stack when resuming the caller's execution at the location
+specified by the previously called procedure's return address.
 
 In this model, the call stack is a LIFO queue. If one procedure calls another
-before returning to its own caller, other things being equal, it will push a
-new frame for the sub-procedure, which becomes the top-most stack frame for the
+before returning to its own caller, other things being equal, it will push a new
+frame for the sub-procedure, which becomes the top-most stack frame for the
 duration of that sub-procedure's execution. If the sub-sub-procedure makes a
-call, it will ordinarily push yet another frame onto the stack, and so on.
-Since RAM is a finite resource, this can eventually cause a "stack overflow"
-exception if such procedure calls are nested deeply enough that there is no
-more room for another frame on the stack.
+call, it will ordinarily push yet another frame onto the stack, and so on. Since
+RAM is a finite resource, this can eventually cause a "stack overflow" exception
+if such procedure calls are nested deeply enough that there is no more room for
+another frame on the stack.
 
 But here's the thing: note that from the point of view of any called procedure,
 its own frame is always the top-most one while it is executing. Its own
@@ -1484,12 +1686,14 @@ when _that_ procedure's frame is at the top. Note also that from a called
 procedure's point of view, the return address is, when all is said and done,
 just another (implicit, in most programming languages) parameter. Finally, note
 that a new stack frame only is needed for one procedure to call another if the
-caling procedure needs to resume execution after the one it calls returns. I.e.
-the procedure that calls a procedure does not need to know whether or not any
-additional frames were created on the stack during the time at which its own
-execution was suspended, it just needs the returned value and to know that its
-own frame is once again at the top of the stack, whether or not other frames
-existed while its execution was suspended.
+caling procedure needs to resume execution after the one it calls returns. If
+the calling procedure doesn't have anything to do after calling another
+procedure but return to its own caller, the procedure it calls may as well
+return directly to that called procedure's indirect caller. The calling
+procedure arranges for this by not adding a new stack frame when it makes a call
+in tail position but, rather, arranging for the procedure it calls to re-use the
+existing top-most stack-frame or else it pops its own frame off the stack before
+pushing its callees frame. Either way, the stack does not grow for tail-calls.
 
 Putting all of the preceding together, Scheme's first-class continuations give
 the programmer the ability to seize control of the stack, treating return
@@ -1497,12 +1701,13 @@ addresses (continuations) as just another parameter. Tail-call optimization
 requires the compiler to refrain from adding frames to the stack when they are
 not actually needed. Together, these make [CPS](#continuation-passing-style) the
 "universal flow of control" paradigm, allowing tail-calling to take the place of
-any special looping, exception handling or other pre-defined control structures.
+any special looping, exception signaling or other pre-defined control
+structures.
 
 [a-machines]: https://en.wikipedia.org/wiki/Turing_machine
 [Church Numerals]: https://en.wikipedia.org/wiki/Church_encoding
 [Computability Theory]: https://en.wikipedia.org/wiki/Computability_theory
 [Emacs]: https://www.gnu.org/software/emacs/
-[&lambda;-Calculus]: https://en.wikipedia.org/wiki/Lambda_calculus
+[λ-Calculus]: https://en.wikipedia.org/wiki/Lambda_calculus
 [Racket]: https://racket-lang.org/
 [sexpr]: https://en.wikipedia.org/wiki/S-expression
